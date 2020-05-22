@@ -35,7 +35,9 @@ print('Number of indices in low_range', low_range_size)
 print('Number of indices in mid_range', mid_range_size)
 print('Number of indices in high_range', high_range_size)
 
-for i in range(100):
+print('#'*10)
+
+while True:
     data_length, data = input_pcm.read()
     if data_length:
         #print('Data recieved', data_length, data)
@@ -43,9 +45,9 @@ for i in range(100):
         signal[-data_length:] = np.frombuffer(data, dtype='int16')
         fft = abs(scipy.fft.fft(signal))
         # Average over the specified ranges
-        print(f'{sum(fft[low_range])/low_range_size:08.0f}',
-              f'{sum(fft[mid_range])/mid_range_size:08.0f}',
-              f'{sum(fft[high_range])/high_range_size:08.0f}')
+        print(f'{sum(fft[low_range])/low_range_size / 1200000 * 255:03.0f}',
+              f'{sum(fft[mid_range])/mid_range_size /  500000 * 255:03.0f}',
+              f'{sum(fft[high_range])/high_range_size / 50000 * 255:03.0f}')
         #print(f'{max(fft[low_range]):08.0f}',
         #      f'{max(fft[mid_range]):08.0f}',
         #      f'{max(fft[high_range]):08.0f}')
