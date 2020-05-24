@@ -12,7 +12,7 @@ from rpi_ws281x import PixelStrip, Color
 print('Libraries loaded')
 
 # LED strip configuration:
-LED_COUNT = 6
+LED_COUNT = 9
 LED_PIN = 21
 # LED_PIN = 10        # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
 LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
@@ -54,10 +54,13 @@ if __name__ == '__main__':
             print(input_string, brightnesses)
             # Low range: blue
             strip.setPixelColor(0, Color(0, 0, brightnesses[0]))
+            strip.setPixelColor(1, Color(0, 0, brightnesses[0]))
             # Mid range: red
-            strip.setPixelColor(2, Color(brightnesses[1], 0, 0))
+            strip.setPixelColor(3, Color(brightnesses[1], 0, 0))
+            strip.setPixelColor(4, Color(brightnesses[1], 0, 0))
             # High range: green
-            strip.setPixelColor(4, Color(0, brightnesses[2], 0))
+            strip.setPixelColor(6, Color(0, brightnesses[2], 0))
+            strip.setPixelColor(7, Color(0, brightnesses[2], 0))
             strip.show()
 
     except KeyboardInterrupt:
