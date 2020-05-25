@@ -24,11 +24,20 @@ frequencies = scipy.fft.fftfreq(signal.size, 1/FRAMERATE)
 print('Max frequency:', frequencies[len(frequencies)//2 - 1])
 
 # Human hearing range: 20Hz to 20,000Hz
-low_range = (20 < frequencies) & (frequencies < 200)
+# Frequency table
+# Name            Range (in Hz)  Use
+# Sub-bass        20 - 60        Felt, sense of power
+# Bass            60 - 250       Fundamental notes
+# Low midrange    250 - 500      Bass instruments
+# Midrange        500 - 2000     Instruments & vocals
+# Upper midrange  2000 - 4000    Percussion & vocals
+# Presence        4000 - 6000    Clarity & defintion
+# Brilliance      6000 - 20000   Sparkle
+low_range = (250 < frequencies) & (frequencies <= 500)
 low_range_size = sum(low_range)
-mid_range = (200 < frequencies) & (frequencies < 2000)
+mid_range = (500 < frequencies) & (frequencies <= 2000)
 mid_range_size = sum(mid_range)
-high_range = (2000 < frequencies) & (frequencies < 20000)
+high_range = (2000 < frequencies) & (frequencies <= 4000)
 high_range_size = sum(high_range)
 
 print('Number of indices in low_range', low_range_size)
@@ -45,9 +54,9 @@ while True:
         signal[-data_length:] = np.frombuffer(data, dtype='int16')
         fft = abs(scipy.fft.fft(signal))
         # Average over the specified ranges
-        print(f'{sum(fft[low_range])/low_range_size / 2000000}',
-              f'{sum(fft[mid_range])/mid_range_size /  500000}',
-              f'{sum(fft[high_range])/high_range_size / 50000}')
+        print(f'{sum(fft[low_range])/low_range_size /   500000:0.010f}',
+              f'{sum(fft[mid_range])/mid_range_size /   200000:0.010f}',
+              f'{sum(fft[high_range])/high_range_size / 100000:0.010f}')
         #print(f'{max(fft[low_range]):08.0f}',
         #      f'{max(fft[mid_range]):08.0f}',
         #      f'{max(fft[high_range]):08.0f}')
