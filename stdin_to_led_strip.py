@@ -21,15 +21,16 @@ LED_BRIGHTNESS = 255  # Set to 0 for darkest and 255 for brightest
 LED_INVERT = False    # True to invert the signal (when using NPN transistor level shift)
 LED_CHANNEL = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
-LEDS_PER_FREQUENCY_RANGE = 3
-LEDS_BETWEEN_RANGES = 1
+START_OFFSET = 6
+LEDS_PER_FREQUENCY_RANGE = 4
+LEDS_BETWEEN_RANGES = 4
 COLORS = [
     (2/3, 1, 1), # Pure blue
     (0/3, 1, 1), # Pure red
     (1/3, 1, 1), # Pure green
 ]
 
-LED_COUNT = len(COLORS) * (LEDS_PER_FREQUENCY_RANGE + LEDS_BETWEEN_RANGES)
+LED_COUNT = START_OFFSET + len(COLORS) * (LEDS_PER_FREQUENCY_RANGE + LEDS_BETWEEN_RANGES)
 
 def clip(value, lower=0, upper=1):
     return lower if value < lower else upper if value > upper else value
@@ -45,7 +46,7 @@ def update(brightness_values):
     for color_index, (base_color, value) in enumerate(zip(COLORS, brightness_values)):
         rgb_color = colorsys.hsv_to_rgb(base_color[0], base_color[1], value)
         led_color = Color(*tuple(int(c*255) for c in rgb_color))
-        offset = color_index * (LEDS_PER_FREQUENCY_RANGE + LEDS_BETWEEN_RANGES)
+        offset = START_OFFSET + color_index * (LEDS_PER_FREQUENCY_RANGE + LEDS_BETWEEN_RANGES)
         for i in range(LEDS_PER_FREQUENCY_RANGE):
             strip.setPixelColor(offset + i, led_color)
     strip.show()
