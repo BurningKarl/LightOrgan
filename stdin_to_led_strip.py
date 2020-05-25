@@ -22,7 +22,9 @@ LED_INVERT = False    # True to invert the signal (when using NPN transistor lev
 LED_CHANNEL = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
 
-# Define functions which animate LEDs in various ways.
+def clip(value, lower=0, upper=1):
+    return lower if value < lower else upper if value > upper else value
+
 def colorWipe(strip, color, wait_ms=50):
     """Wipe color across display a pixel at a time."""
     for i in range(strip.numPixels()):
@@ -42,7 +44,7 @@ if __name__ == '__main__':
         # Ignore everything until '#'*10
         while True:
             input_string = input().strip()
-            print('Pre:', input_string)
+            print('Setup:', input_string)
             if input_string == '#'*10:
                 break
 
@@ -50,8 +52,8 @@ if __name__ == '__main__':
             input_string = input().strip()
             if not input_string:
                 continue
-            brightnesses = [min(max(0, int(c)), 255) for c in input_string.split(' ')]
-            print(input_string, brightnesses)
+            brightnesses = [int(clip(float(c))*255) for c in input_string.split(' ')]
+            print(brightnesses)
             # Low range: blue
             strip.setPixelColor(0, Color(0, 0, brightnesses[0]))
             strip.setPixelColor(1, Color(0, 0, brightnesses[0]))
