@@ -21,12 +21,15 @@ LED_BRIGHTNESS = 255  # Set to 0 for darkest and 255 for brightest
 LED_INVERT = False    # True to invert the signal (when using NPN transistor level shift)
 LED_CHANNEL = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
-LEDS_PER_FREQUENCY_RANGE = 3
+LEDS_PER_FREQUENCY_RANGE = 2
 LEDS_BETWEEN_RANGES = 1
+COLOR_COUNT = 5
+# Generate the colors from blue over red to green
 COLORS = [
-    (2/3, 1, 1), # Pure blue
-    (0/3, 1, 1), # Pure red
-    (1/3, 1, 1), # Pure green
+    ((2/3 + i/COLOR_COUNT) % 1, 1, 1)  for i in range(COLOR_COUNT)
+#    (2/3, 1, 1), # Pure blue
+#    (0/3, 1, 1), # Pure red
+#    (1/3, 1, 1), # Pure green
 ]
 
 LED_COUNT = len(COLORS) * (LEDS_PER_FREQUENCY_RANGE + LEDS_BETWEEN_RANGES)
