@@ -5,10 +5,14 @@ The light organ is able to react to all sounds played as the user pi.
 I use it in conjunction with a custom systemd service that is very closely modeled after the one provided by raspotify
 to transform the Raspberry Pi into a Spotify player.
 
+## Hardware requirements
+1. A Raspberry Pi with Raspbian
+1. A WS2812B LED strip or similar
+
 ## Steps
 1. Clone the repo and install the python libraries in `requirements.txt`
 1. Correctly set up the WS2812B LED strip
-1. Install and configure [Raspotify](https://github.com/dtcooper/raspotify) (optional)
+1. Transform your Raspberry Pi into a Spotify player (optional)
 1. Enjoy your light organ by running `python -u realtime_fft.py | sudo venv/bin/python stdin_to_led_strip.py`
 
 ## Step 1: Repo and python setup
@@ -42,3 +46,28 @@ According to [this sheet](https://www.raspberrypi.org/documentation/hardware/ras
 has a recommend capacity for the power supply unit of 2.5A which I assume to be close to the current the default power supply unit will provide.
 Using all 150 LEDs (5m * 30LEDs/m) at the same time leads to a maximum of 9A which is definitely above 2.5A.
 You can obviously bypass these problems with an external powersource for the LED strip but if you don't decide to use one be aware!
+
+## Step 3: Raspotify setup
+Install [Raspotify](https://github.com/dtcooper/raspotify) as explained in its readme and test it to see if everything
+is set up correctly. As stated at the top the light organ will only be able to pick up sounds that are played by the user pi.
+This a limitation of the ALSA audio system as far as I can see and it forces us to deactivate the systemd service
+that Raspotify comes with and replace it with a systemd user service for the user pi.
+The systemd service the I successfully used is included in this repository.
+
+```
+sudo systemctl disable --now raspotify
+cp raspotify.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now raspotify
+```
+
+Now the Spotify device "raspotify (...)" should also appear as long as the Raspberry Pi is running.
+To test whether the sound output of the Spotify Device can be captured by ALSA use
+
+```
+arecord -d 10 -f cd test.wav
+aplay test.wav
+```
+
+This should record 10 seconds of CD quality sound to `test.wav` and then play it back to you. 
+Of course you need to play some music at the time of the recording.
