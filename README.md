@@ -17,7 +17,7 @@ to transform the Raspberry Pi into a Spotify player.
 
 ## Step 1: Repo and python setup
 Clone the repository, setup a python virtual environment and install all the necessary packages
-```
+```bash
 git clone https://github.com/BurningKarl/light-organ.git
 cd light-organ
 python3 -m virtualenv venv
@@ -54,7 +54,7 @@ This a limitation of the ALSA audio system as far as I can see and it forces us 
 that Raspotify comes with and replace it with a systemd user service for the user pi.
 The systemd service the I successfully used is included in this repository.
 
-```
+```bash
 sudo systemctl disable --now raspotify
 cp raspotify.service ~/.config/systemd/user/
 systemctl --user daemon-reload
@@ -64,10 +64,26 @@ systemctl --user enable --now raspotify
 Now the Spotify device "raspotify (...)" should also appear as long as the Raspberry Pi is running.
 To test whether the sound output of the Spotify Device can be captured by ALSA use
 
-```
+```bash
 arecord -d 10 -f cd test.wav
 aplay test.wav
 ```
 
 This should record 10 seconds of CD quality sound to `test.wav` and then play it back to you. 
 Of course you need to play some music at the time of the recording.
+
+## Step 4: Enjoy
+The audio signal output of the Raspberry Pi for the user pi can only be captured as the user pi 
+but at the same time to control the LED strip access to `/dev/mem` is needed which is only given to the root user.
+I solved this problem by creating two different python scripts: 
+One runs as the user pi and analyzes the audio signal (`realtime_fft.py`) and one runs as root and controls the LED strip (`stdin_to_led_strip.py`).
+As the name of the second script they communicate through stdin and stdout.
+The stdout of one script to be directed to the stdin of the second script with piping on the command line.
+To use the light organ run
+```bash
+python realtime_fft.py | sudo venv/bin/python stdin_to_led_strip.py
+```
+
+At the time of this writing the `realtime_fft.py` script performs the audio analysis and outputs one line for every time step.
+Each line consists of multiple values from 0 to 255 that indicate the volume of different parts of the spectrum (low to high frequencies).
+The `stdin_to_led_strip.py` then takes these values and uses them as the brightness values for different LEDs and different colors (low frequencies = blue, middle frequencies = red, high frequencies = green).
