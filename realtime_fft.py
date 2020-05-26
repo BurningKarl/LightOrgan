@@ -8,8 +8,8 @@ print('Libraries loaded')
 NUMBER_OF_CHANNELS = 1
 FRAMERATE = 44100
 FORMAT = alsaaudio.PCM_FORMAT_S16_LE
-CHUNK_SIZE = 2048
-FFT_SIZE = 2048 # Number of frames included in FFT
+FFT_SIZE = 44100 // 10 # Number of frames included in FFT
+CHUNK_SIZE = 44100 // 70 # Chunks read from the capture device
 
 input_pcm = alsaaudio.PCM(alsaaudio.PCM_CAPTURE)
 input_pcm.setchannels(NUMBER_OF_CHANNELS)
