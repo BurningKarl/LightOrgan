@@ -25,10 +25,11 @@ START_OFFSET = 6
 LEDS_PER_FREQUENCY_RANGE = 4
 LEDS_BETWEEN_RANGES = 4
 COLORS = [
-    (2/3, 1, 1), # Pure blue
-    (0/3, 1, 1), # Pure red
-    (1/3, 1, 1), # Pure green
+    (2/3 + 0.025, 1.00, 1), # Pure blue
+    (0/3,         1.00, 1), # Pure red
+    (1/3 - 0.025, 1.00, 1), # Pure green
 ]
+COLOR_MODE = 2 # The index of HSV that is affected by incoming values
 
 LED_COUNT = START_OFFSET + len(COLORS) * (LEDS_PER_FREQUENCY_RANGE + LEDS_BETWEEN_RANGES)
 
@@ -44,7 +45,8 @@ def colorWipe(strip, color, wait_ms=50):
 
 def update(brightness_values):
     for color_index, (base_color, value) in enumerate(zip(COLORS, brightness_values)):
-        rgb_color = colorsys.hsv_to_rgb(base_color[0], base_color[1], value)
+        hsv_color = base_color[:COLOR_MODE] + (value,) + base_color[COLOR_MODE+1:]
+        rgb_color = colorsys.hsv_to_rgb(*hsv_color)
         led_color = Color(*tuple(int(c*255) for c in rgb_color))
         offset = START_OFFSET + color_index * (LEDS_PER_FREQUENCY_RANGE + LEDS_BETWEEN_RANGES)
         for i in range(LEDS_PER_FREQUENCY_RANGE):
@@ -72,7 +74,7 @@ if __name__ == '__main__':
             if not input_string:
                 continue
             brightness_values = [clip(float(c)) for c in input_string.split(' ')]
-            print(brightness_values)
+            print(input_string)
             update(brightness_values)
 
     except KeyboardInterrupt:
