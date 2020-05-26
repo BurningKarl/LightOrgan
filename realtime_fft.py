@@ -54,9 +54,12 @@ while True:
         signal[-data_length:] = np.frombuffer(data, dtype='int16')
         fft = abs(scipy.fft.fft(signal))
         # Average over the specified ranges
-        print(f'{sum(fft[low_range])/low_range_size /   500000:0.010f}',
-              f'{sum(fft[mid_range])/mid_range_size /   200000:0.010f}',
-              f'{sum(fft[high_range])/high_range_size / 100000:0.010f}')
-        #print(f'{max(fft[low_range]):08.0f}',
-        #      f'{max(fft[mid_range]):08.0f}',
-        #      f'{max(fft[high_range]):08.0f}')
+        print(f'{sum(fft[low_range])/low_range_size /   600000:0.010f}',
+              f'{sum(fft[mid_range])/mid_range_size /   300000:0.010f}',
+              f'{sum(fft[high_range])/high_range_size / 150000:0.010f}')
+        # The denominators were determined empirically so that the
+        # mean over the values over a range of a normal piece of
+        # music is close to 0.5. The value of 1 is still exceeded
+        # regularly, but I hope this gives a good compromise between
+        # the usage of the full range and the fact the range of the
+        # output should be 0 to 1
