@@ -1,4 +1,4 @@
-# light-organ
+# LightOrgan
 A light organ with raspotify and a WS2812B LED strip on a Raspberry Pi
 
 The light organ is able to react to all sounds played as the user pi.
@@ -18,8 +18,8 @@ to transform the Raspberry Pi into a Spotify player.
 ## Step 1: Repo and python setup
 Clone the repository, setup a python virtual environment and install all the necessary packages
 ```bash
-git clone https://github.com/BurningKarl/light-organ.git
-cd light-organ
+git clone https://github.com/BurningKarl/LightOrgan.git
+cd LightOrgan
 python3 -m virtualenv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -77,7 +77,7 @@ The audio signal output of the Raspberry Pi for the user pi can only be captured
 but at the same time to control the LED strip access to `/dev/mem` is needed which is only given to the root user.
 I solved this problem by creating two different python scripts: 
 One runs as the user pi and analyzes the audio signal (`realtime_fft.py`) and one runs as root and controls the LED strip (`stdin_to_led_strip.py`).
-As the name of the second script they communicate through stdin and stdout.
+As the name of the second script suggests, they communicate through stdin and stdout.
 The stdout of one script to be directed to the stdin of the second script with piping on the command line.
 To use the light organ run
 ```bash
