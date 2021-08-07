@@ -20,7 +20,7 @@ Clone the repository, setup a python virtual environment and install all the nec
 ```bash
 git clone https://github.com/BurningKarl/LightOrgan.git
 cd LightOrgan
-python3 -m virtualenv venv
+python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
@@ -39,7 +39,7 @@ This also has the advantage that it is very easy to setup:
 * Connect the dataline of the LED strip to pin 40
 
 At this point nothing should happen. The LEDs will not automatically turn on. 
-You can test everything with `sudo ven/bin/python strandtest.py -c` and the first six LEDs will start to light up in various colors and patterns.
+You can test everything with `sudo venv/bin/python strandtest.py -c` and the first six LEDs will start to light up in various colors and patterns.
 The reason I have set `LED_COUNT = 6` is that there is a limit to the number LEDs that you can use simultaneously with the Raspbery Pi as the only power source.
 A single LED can use up to 60 mA of current and it depends on the type of Raspberry Pi what currents it allows.
 According to [this sheet](https://www.raspberrypi.org/documentation/hardware/raspberrypi/power/README.md) my Raspberry Pi 3B
@@ -89,3 +89,9 @@ Each line consists of multiple values from 0 to 255 that indicate the volume of 
 The `stdin_to_led_strip.py` then takes these values and uses them as the brightness values for different LEDs and different colors (low frequencies = blue, middle frequencies = red, high frequencies = green).
 
 Note that the `-u` option forces python to not buffer the stdout stream. If omitted, the data is sent in chunks and the LED strip will not react in real time.
+
+## Troubleshooting
+
+### The sound is choppy and slow
+
+This happend to me multiple times during testing. It might be caused by the sound chip overheating, but sometimes I was able to solve it by changing the sound source from raspotify to `aplay test.wav` and back.
