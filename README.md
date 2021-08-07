@@ -39,7 +39,7 @@ This also has the advantage that it is very easy to setup:
 * Connect the dataline of the LED strip to pin 40
 
 At this point nothing should happen. The LEDs will not automatically turn on. 
-You can test everything with `python strandtest.py -c` and the first six LEDs will start to light up in various colors and patterns.
+You can test everything with `sudo ven/bin/python strandtest.py -c` and the first six LEDs will start to light up in various colors and patterns.
 The reason I have set `LED_COUNT = 6` is that there is a limit to the number LEDs that you can use simultaneously with the Raspbery Pi as the only power source.
 A single LED can use up to 60 mA of current and it depends on the type of Raspberry Pi what currents it allows.
 According to [this sheet](https://www.raspberrypi.org/documentation/hardware/raspberrypi/power/README.md) my Raspberry Pi 3B
@@ -52,7 +52,7 @@ Install [Raspotify](https://github.com/dtcooper/raspotify) as explained in its r
 is set up correctly. As stated at the top the light organ will only be able to pick up sounds that are played by the user pi.
 This a limitation of the ALSA audio system as far as I can see and it forces us to deactivate the systemd service
 that Raspotify comes with and replace it with a systemd user service for the user pi.
-The systemd service the I successfully used is included in this repository.
+The systemd service I successfully used is included in this repository.
 
 ```bash
 sudo systemctl disable --now raspotify
@@ -81,9 +81,11 @@ As the name of the second script suggests, they communicate through stdin and st
 The stdout of one script to be directed to the stdin of the second script with piping on the command line.
 To use the light organ run
 ```bash
-python realtime_fft.py | sudo venv/bin/python stdin_to_led_strip.py
+python -u realtime_fft.py | sudo venv/bin/python stdin_to_led_strip.py
 ```
 
 At the time of this writing the `realtime_fft.py` script performs the audio analysis and outputs one line for every time step.
 Each line consists of multiple values from 0 to 255 that indicate the volume of different parts of the spectrum (low to high frequencies).
 The `stdin_to_led_strip.py` then takes these values and uses them as the brightness values for different LEDs and different colors (low frequencies = blue, middle frequencies = red, high frequencies = green).
+
+Note that the `-u` option forces python to not buffer the stdout stream. If omitted, the data is sent in chunks and the LED strip will not react in real time.
