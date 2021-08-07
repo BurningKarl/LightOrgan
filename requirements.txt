@@ -1,5 +1,4 @@
 numpy==1.18.4
-pkg-resources==0.0.0
 pyalsaaudio==0.8.4
 rpi-ws281x==4.2.3
 scipy==1.4.1
