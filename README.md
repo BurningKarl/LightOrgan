@@ -50,9 +50,8 @@ You can obviously bypass these problems with an external power supply for the LE
 
 ### Step 3: Play music
 Check your audio setup by playing some music as the user pi.
-This can be done on the command line as explained at https://www.raspberrypi.org/documentation/usage/audio/.
-Basically, execute `omxplayer example.mp3` using any MP3 file and it should be played back via HDMI or connected headphones.
-To make sure the audio can be recorded by the light organ script, run `arecord -d 10 -f cd test.wav` while the music is playing (you may use background processes or `screen` to execute both commands at the same time) to record 10 seconds of CD quality sound and play it back via `aplay test.wav`.
+Execute `cvlc --play-and-exit example.mp3` using any audio file and it should be played back via HDMI or connected headphones.
+To make sure the audio can be recorded by the light organ script, run `arecord -d 10 -f cd test.wav` while the music is playing (you may use `screen` to execute both commands at the same time) to record 10 seconds of CD quality sound and play it back via `aplay test.wav`.
 This should play back the recorded audio, if there is only silence you need to do some troubleshooting.
 
 ### Step 4: Enjoy
