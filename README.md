@@ -24,6 +24,8 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+The `source venv/bin/activate` command activates the current virtual environment in the `venv` folder so that `python` and `pip` use the correct executables.
+It can be deactivated by `deactivate`.
 
 ### Step 2: WS2812 setup
 I used https://github.com/jgarff/rpi_ws281x/blob/master/README.md to help me to set up my WS2812B LED strip. 
@@ -93,3 +95,12 @@ To test whether the sound output of the Spotify Device can be captured by ALSA u
 This happens because of so-called underruns, i.e. when the audio buffer is not filled fast enough.
 I have not yet figured out the exact cause, but I have observed that playback using `aplay` usually works fine, while the Spotify client often has this issue.
 Sometimes stopping Spotify playback, executing `aplay example.wav` and unpausing Spotify afterwards fixes the issue.
+
+### Numpy error
+If you run into the error
+```
+libf77blas.so.3: cannot open shared object file: No such file or directory
+```
+when importing numpy (or executing a script which uses numpy), please refer to the explanations at https://numpy.org/devdocs/user/troubleshooting-importerror.html#raspberry-pi.
+I used `sudo apt install libatlas-base-dev` to solve the issue.
+
