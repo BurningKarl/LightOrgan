@@ -1,21 +1,21 @@
 import time
 import alsaaudio
 import numpy as np
-import scipy
+import scipy.fft
 
 print('Libraries loaded')
 
-NUMBER_OF_CHANNELS = 1
 FRAMERATE = 44100
-FORMAT = alsaaudio.PCM_FORMAT_S16_LE
 FFT_SIZE = 44100 // 10 # Number of frames included in FFT
 CHUNK_SIZE = 44100 // 70 # Chunks read from the capture device
 
-input_pcm = alsaaudio.PCM(alsaaudio.PCM_CAPTURE)
-input_pcm.setchannels(NUMBER_OF_CHANNELS)
-input_pcm.setrate(FRAMERATE)
-input_pcm.setformat(FORMAT)
-input_pcm.setperiodsize(CHUNK_SIZE)
+input_pcm = alsaaudio.PCM(
+    type=alsaaudio.PCM_CAPTURE,
+    format=alsaaudio.PCM_FORMAT_S16_LE,
+    channels=1,
+    rate=FRAMERATE,
+    periodsize=CHUNK_SIZE,
+)
 
 print('PCM set up')
 
