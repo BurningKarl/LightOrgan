@@ -1,4 +1,3 @@
-import time
 import colorsys
 from rpi_ws281x import PixelStrip, Color
 
@@ -32,12 +31,10 @@ def clip(value, lower=0, upper=1):
     return lower if value < lower else upper if value > upper else value
 
 
-def colorWipe(strip, color, wait_ms=50):
-    """Wipe color across display a pixel at a time."""
+def turn_off(strip):
     for i in range(strip.numPixels()):
-        strip.setPixelColor(i, color)
-        strip.show()
-        time.sleep(wait_ms / 1000.0)
+        strip.setPixelColor(i, Color(0, 0, 0))
+    strip.show()
 
 
 def update(brightness_values):
@@ -86,4 +83,4 @@ if __name__ == "__main__":
             update(brightness_values)
 
     except KeyboardInterrupt:
-        colorWipe(strip, Color(0, 0, 0), 10)
+        turn_off(strip)
