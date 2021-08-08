@@ -89,6 +89,8 @@ To test whether the sound output of the Spotify Device can be captured by ALSA u
 
 ## Troubleshooting
 
-### The sound is choppy and slow
+### The sound is choppy and the playback speed is too slow
 
-This happend to me multiple times during testing. It might be caused by the sound chip overheating, but sometimes I was able to solve it by changing the sound source from raspotify to `aplay test.wav` and back.
+This happens because of so-called underruns, i.e. when the audio buffer is not filled fast enough.
+I have not yet figured out the exact cause, but I have observed that playback using `aplay` usually works fine, while the Spotify client often has this issue.
+Sometimes stopping Spotify playback, executing `aplay example.wav` and unpausing Spotify afterwards fixes the issue.
