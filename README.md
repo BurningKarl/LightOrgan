@@ -9,14 +9,14 @@ to transform the Raspberry Pi into a Spotify player.
 1. A Raspberry Pi with Raspbian
 1. A WS2812B LED strip or similar
 
-## Steps
+## Guide
 1. Clone the repo and install the python libraries in `requirements.txt`
 1. Correctly set up the WS2812B LED strip
-1. Transform your Raspberry Pi into a Spotify player (optional)
-1. Enjoy your light organ by running `python -u realtime_fft.py | sudo venv/bin/python stdin_to_led_strip.py`
+1. Play some music as the user pi
+1. Enjoy your light organ by executing the correct command
 
-## Step 1: Repo and python setup
-Clone the repository, setup a python virtual environment and install all the necessary packages
+### Step 1: Repo and Python setup
+Clone the repository, setup a python virtual environment and install all the necessary packages with the following commands:
 ```bash
 git clone https://github.com/BurningKarl/LightOrgan.git
 cd LightOrgan
@@ -25,7 +25,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Step 2: WS2812 setup
+### Step 2: WS2812 setup
 I used https://github.com/jgarff/rpi_ws281x/blob/master/README.md to help me to set up my WS2812B LED strip. 
 I decided to use the PCM method on GPIO 21 (pin 40), because 
 
@@ -34,51 +34,34 @@ I decided to use the PCM method on GPIO 21 (pin 40), because
 and analog audio is enough for my purposes. 
 This also has the advantage that it is very easy to setup: 
 
-* Connect the ground of the LED strip to ground of the raspberry pi
-* Connect the 5V of the LED strip to 5V of the raspberry pi
+* Connect the ground of the LED strip to ground of the raspberry pi (e.g. pin 4)
+* Connect the 5V of the LED strip to 5V of the raspberry pi (e.g. pin 6)
 * Connect the dataline of the LED strip to pin 40
 
-At this point nothing should happen. The LEDs will not automatically turn on. 
+A useful map of all the pins on the Raspberry Pi can be found at https://pinout.xyz/#.
+Once you connected all of the wires, the LEDs will not automatically turn on. 
 You can test everything with `sudo venv/bin/python strandtest.py -c` and the first six LEDs will start to light up in various colors and patterns.
 The reason I have set `LED_COUNT = 6` is that there is a limit to the number LEDs that you can use simultaneously with the Raspbery Pi as the only power source.
 A single LED can use up to 60 mA of current and it depends on the type of Raspberry Pi what currents it allows.
 According to [this sheet](https://www.raspberrypi.org/documentation/hardware/raspberrypi/power/README.md) my Raspberry Pi 3B
 has a recommend capacity for the power supply unit of 2.5A which I assume to be close to the current the default power supply unit will provide.
 Using all 150 LEDs (5m * 30LEDs/m) at the same time leads to a maximum of 9A which is definitely above 2.5A.
-You can obviously bypass these problems with an external powersource for the LED strip but if you don't decide to use one be aware!
+You can obviously bypass these problems with an external power supply for the LED strip but if you don't decide to use one, be aware!
 
-## Step 3: Raspotify setup
-Install [Raspotify](https://github.com/dtcooper/raspotify) as explained in its readme and test it to see if everything
-is set up correctly. As stated at the top the light organ will only be able to pick up sounds that are played by the user pi.
-This a limitation of the ALSA audio system as far as I can see and it forces us to deactivate the systemd service
-that Raspotify comes with and replace it with a systemd user service for the user pi.
-The systemd service I successfully used is included in this repository.
+### Step 3: Play music
+Check your audio setup by playing some music as the user pi.
+This can be done on the command line as explained at https://www.raspberrypi.org/documentation/usage/audio/.
+Basically, execute `omxplayer example.mp3` using any MP3 file and it should be played back via HDMI or connected headphones.
+To make sure the audio can be recorded by the light organ script, run `arecord -d 10 -f cd test.wav` while the music is playing (you may use background processes or `screen` to execute both commands at the same time) to record 10 seconds of CD quality sound and play it back via `aplay test.wav`.
+This should play back the recorded audio, if there is only silence you need to do some troubleshooting.
 
-```bash
-sudo systemctl disable --now raspotify
-cp raspotify.service ~/.config/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable --now raspotify
-```
-
-Now the Spotify device "raspotify (...)" should also appear as long as the Raspberry Pi is running.
-To test whether the sound output of the Spotify Device can be captured by ALSA use
-
-```bash
-arecord -d 10 -f cd test.wav
-aplay test.wav
-```
-
-This should record 10 seconds of CD quality sound to `test.wav` and then play it back to you. 
-Of course you need to play some music at the time of the recording.
-
-## Step 4: Enjoy
+### Step 4: Enjoy
 The audio signal output of the Raspberry Pi for the user pi can only be captured as the user pi 
 but at the same time to control the LED strip access to `/dev/mem` is needed which is only given to the root user.
 I solved this problem by creating two different python scripts: 
 One runs as the user pi and analyzes the audio signal (`realtime_fft.py`) and one runs as root and controls the LED strip (`stdin_to_led_strip.py`).
 As the name of the second script suggests, they communicate through stdin and stdout.
-The stdout of one script to be directed to the stdin of the second script with piping on the command line.
+The stdout of one script needs to be directed to the stdin of the second script with piping on the command line.
 To use the light organ run
 ```bash
 python -u realtime_fft.py | sudo venv/bin/python stdin_to_led_strip.py
@@ -89,6 +72,20 @@ Each line consists of multiple values from 0 to 255 that indicate the volume of 
 The `stdin_to_led_strip.py` then takes these values and uses them as the brightness values for different LEDs and different colors (low frequencies = blue, middle frequencies = red, high frequencies = green).
 
 Note that the `-u` option forces python to not buffer the stdout stream. If omitted, the data is sent in chunks and the LED strip will not react in real time.
+
+## Playing music from an external source
+
+It is often more convenient to control the music through an external device.
+The following list contains guides to approaches I've tried so far.
+
+### Raspotify
+Using [Raspotify](https://github.com/dtcooper/raspotify) one can let the Raspberry Pi act as a spotify playback device (only available for Spotify Premium users).
+First, set up Raspotify as explained in its readme including the "Play via Bluetooth Speaker" section.
+Essentially, the "Play via Bluetooth Speaker" explains how to set up the systemd service as a user service such that the sound is played back as the user pi.
+This also essential here, because the python script can only pick up those sounds.
+
+After a successful setup, the Spotify device "raspotify (...)" should appear.
+To test whether the sound output of the Spotify Device can be captured by ALSA use `arecord` and `aplay` as explained above.
 
 ## Troubleshooting
 
