@@ -1,13 +1,12 @@
-import time
 import alsaaudio
 import numpy as np
 import scipy.fft
 
-print('Libraries loaded')
+print("Libraries loaded")
 
 FRAMERATE = 44100
-FFT_SIZE = 44100 // 10 # Number of frames included in FFT
-CHUNK_SIZE = 44100 // 70 # Chunks read from the capture device
+FFT_SIZE = 44100 // 10  # Number of frames included in FFT
+CHUNK_SIZE = 44100 // 70  # Chunks read from the capture device
 
 input_pcm = alsaaudio.PCM(
     type=alsaaudio.PCM_CAPTURE,
@@ -17,11 +16,11 @@ input_pcm = alsaaudio.PCM(
     periodsize=CHUNK_SIZE,
 )
 
-print('PCM set up')
+print("PCM set up")
 
 signal = np.zeros(FFT_SIZE)
-frequencies = scipy.fft.fftfreq(signal.size, 1/FRAMERATE)
-print('Max frequency:', frequencies[len(frequencies)//2 - 1])
+frequencies = scipy.fft.fftfreq(signal.size, 1 / FRAMERATE)
+print("Max frequency:", frequencies[len(frequencies) // 2 - 1])
 
 # Human hearing range: 20Hz to 20,000Hz
 # Frequency table
@@ -40,23 +39,25 @@ mid_range_size = sum(mid_range)
 high_range = (2000 < frequencies) & (frequencies <= 4000)
 high_range_size = sum(high_range)
 
-print('Number of indices in low_range', low_range_size)
-print('Number of indices in mid_range', mid_range_size)
-print('Number of indices in high_range', high_range_size)
+print("Number of indices in low_range", low_range_size)
+print("Number of indices in mid_range", mid_range_size)
+print("Number of indices in high_range", high_range_size)
 
-print('#'*10)
+print("#" * 10)
 
 while True:
     data_length, data = input_pcm.read()
     if data_length:
-        #print('Data recieved', data_length, data)
+        # print("Data recieved", data_length, data)
         signal = np.roll(signal, -data_length)
-        signal[-data_length:] = np.frombuffer(data, dtype='int16')
+        signal[-data_length:] = np.frombuffer(data, dtype="int16")
         fft = abs(scipy.fft.fft(signal))
         # Average over the specified ranges
-        print(f'{sum(fft[low_range])/low_range_size /   600000:0.010f}',
-              f'{sum(fft[mid_range])/mid_range_size /   300000:0.010f}',
-              f'{sum(fft[high_range])/high_range_size / 150000:0.010f}')
+        print(
+            f"{sum(fft[low_range])/low_range_size /   600000:0.010f}",
+            f"{sum(fft[mid_range])/mid_range_size /   300000:0.010f}",
+            f"{sum(fft[high_range])/high_range_size / 150000:0.010f}",
+        )
         # The denominators were determined empirically so that the
         # mean over the values over a range of a normal piece of
         # music is close to 0.5. The value of 1 is still exceeded
