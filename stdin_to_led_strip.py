@@ -6,6 +6,7 @@ import numpy as np
 from rpi_ws281x import PixelStrip, Color
 import scipy.fft
 import sys
+import time
 
 logger.setLevel(logging.INFO)
 
@@ -58,7 +59,7 @@ class Visualizer:
 class FrequencyVisualizer(Visualizer):
     FRAMERATE = 44100  # Number of frames per second
     FFT_SIZE = 44100 // 10  # Number of frames included in the FFT
-    MAX_BRIGHTNESS_AMPLITUDE = 150000
+    MAX_BRIGHTNESS_AMPLITUDE = 3_000_000
 
     def __init__(self, led_count):
         super().__init__(led_count=led_count)
@@ -125,7 +126,7 @@ class FrequencyBandsVisualizer(FrequencyVisualizer):
 
 
 class FrequencyWaveVisualizer(FrequencyVisualizer):
-    def __init__(self, led_count=10):
+    def __init__(self, led_count=10, cycle_hues=False):
         super().__init__(led_count=led_count)
         self.hues = np.linspace(0, 1, num=self.led_count, endpoint=False)
         self.frequency_cutoffs = np.logspace(
@@ -142,7 +143,17 @@ class FrequencyWaveVisualizer(FrequencyVisualizer):
         self.bin_sizes = [np.sum(mask) for mask in self.bin_masks]
         logger.info(f"bin_sizes={self.bin_sizes}")
 
+        self.cycle_hues = cycle_hues
+        self.last_hue_update = time.monotonic()
+
     def update_leds(self, normalized_amplitudes):
+        if self.cycle_hues and int(time.monotonic() * 10) > int(
+            self.last_hue_update * 10
+        ):
+            self.hues = np.roll(self.hues, 1)
+            logger.debug(f"hues: {self.hues!r}")
+            self.last_hue_update = time.monotonic()
+
         brightness_values = [
             clip(np.sum(normalized_amplitudes[mask]) / size)
             for mask, size in zip(self.bin_masks, self.bin_sizes)
