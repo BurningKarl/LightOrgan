@@ -1,4 +1,5 @@
 import base64
+import colorsys
 import logging
 from logzero import logger
 import numpy as np
@@ -74,8 +75,55 @@ class LedStripFrequencyVisualizer(LedStripVisualizer):
         self.strip.show()
 
 
+class LedStripFrequencyBandsVisualizer(LedStripFrequencyVisualizer):
+    COLORS = [
+        (2 / 3 + 0.025, 1.00, 1),  # Pure blue
+        (0 / 3, 1.00, 1),  # Pure red
+        (1 / 3 - 0.025, 1.00, 1),  # Pure green
+    ]
+
+    def __init__(self, leds_per_band=4):
+        led_count = leds_per_band * 3
+        super().__init__(led_count=led_count)
+        self.leds_per_band = leds_per_band
+
+        # Human hearing range: 20Hz to 20,000Hz
+        # Frequency table
+        # Name            Range (in Hz)  Use
+        # Sub-bass        20 - 60        Felt, sense of power
+        # Bass            60 - 250       Fundamental notes
+        # Low midrange    250 - 500      Bass instruments
+        # Midrange        500 - 2000     Instruments & vocals
+        # Upper midrange  2000 - 4000    Percussion & vocals
+        # Presence        4000 - 6000    Clarity & defintion
+        # Brilliance      6000 - 20000   Sparkle
+        self.band_masks = [
+            (250 < self.frequencies) & (self.frequencies <= 500),
+            (500 < self.frequencies) & (self.frequencies <= 2000),
+            (2000 < self.frequencies) & (self.frequencies <= 4000),
+        ]
+        self.band_sizes = [np.sum(mask) for mask in self.band_masks]
+
+    def update_leds(self, normalized_amplitudes):
+        brightness_values = [
+            clip(np.sum(normalized_amplitudes[mask]) / size)
+            for mask, size in zip(self.band_masks, self.band_sizes)
+        ]
+
+        for color_index, (base_color, value) in enumerate(
+            zip(self.COLORS, brightness_values)
+        ):
+            hsv_color = base_color[:2] + (value,)
+            rgb_color = colorsys.hsv_to_rgb(*hsv_color)
+            led_color = Color(*tuple(round(c * 255) for c in rgb_color))
+            offset = color_index * self.leds_per_band
+            for i in range(self.leds_per_band):
+                self.strip.setPixelColor(offset + i, led_color)
+        self.strip.show()
+
+
 def main():
-    visualizer = LedStripFrequencyVisualizer(led_count=10)
+    visualizer = LedStripFrequencyBandsVisualizer()
 
     try:
         for line in sys.stdin:
