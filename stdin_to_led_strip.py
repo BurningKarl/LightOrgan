@@ -14,7 +14,7 @@ def clip(value, lower=0, upper=1):
     return lower if value < lower else upper if value > upper else value
 
 
-class LedStripVisualizer:
+class Visualizer:
     # LED strip configuration:
     LED_PIN = 21
     # LED_PIN = 10  # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
@@ -28,6 +28,8 @@ class LedStripVisualizer:
 
     def __init__(self, led_count=10):
         super().__init__()
+        self.led_count = led_count
+
         # Create NeoPixel object with appropriate configuration.
         self.strip = PixelStrip(
             led_count,
@@ -53,7 +55,7 @@ class LedStripVisualizer:
         pass
 
 
-class LedStripFrequencyVisualizer(LedStripVisualizer):
+class FrequencyVisualizer(Visualizer):
     FRAMERATE = 44100  # Number of frames per second
     FFT_SIZE = 44100 // 10  # Number of frames included in the FFT
     MAX_BRIGHTNESS_AMPLITUDE = 150000
@@ -75,7 +77,7 @@ class LedStripFrequencyVisualizer(LedStripVisualizer):
         self.strip.show()
 
 
-class LedStripFrequencyBandsVisualizer(LedStripFrequencyVisualizer):
+class FrequencyBandsVisualizer(FrequencyVisualizer):
     COLORS = [
         (2 / 3 + 0.025, 1.00, 1),  # Pure blue
         (0 / 3, 1.00, 1),  # Pure red
@@ -122,14 +124,47 @@ class LedStripFrequencyBandsVisualizer(LedStripFrequencyVisualizer):
         self.strip.show()
 
 
+class FrequencyWaveVisualizer(FrequencyVisualizer):
+    def __init__(self, led_count=10):
+        super().__init__(led_count=led_count)
+        self.hues = np.linspace(0, 1, num=self.led_count, endpoint=False)
+        self.frequency_cutoffs = np.logspace(
+            np.log10(60),
+            np.log10(4000),
+            num=self.led_count + 1,
+        )
+        logger.info(f"frequency_cutoffs={self.frequency_cutoffs}")
+        self.bin_masks = [
+            (self.frequency_cutoffs[i] < self.frequencies)
+            & (self.frequencies <= self.frequency_cutoffs[i + 1])
+            for i in range(self.led_count)
+        ]
+        self.bin_sizes = [np.sum(mask) for mask in self.bin_masks]
+        logger.info(f"bin_sizes={self.bin_sizes}")
+
+    def update_leds(self, normalized_amplitudes):
+        brightness_values = [
+            clip(np.sum(normalized_amplitudes[mask]) / size)
+            for mask, size in zip(self.bin_masks, self.bin_sizes)
+        ]
+        logger.debug(
+            "brightness_values: "
+            + (", ".join([f"{val:0.03f}" for val in brightness_values]))
+        )
+
+        for i, (hue, brightness) in enumerate(zip(self.hues, brightness_values)):
+            rgb_color = colorsys.hsv_to_rgb(hue, 1, brightness)
+            led_color = Color(*tuple(round(c * 255) for c in rgb_color))
+            self.strip.setPixelColor(i, led_color)
+        self.strip.show()
+
+
 def main():
-    visualizer = LedStripFrequencyBandsVisualizer()
+    visualizer = FrequencyWaveVisualizer(led_count=16)
 
     try:
         for line in sys.stdin:
-            logger.debug("new data")
             data = np.frombuffer(base64.b64decode(line), dtype="int16")
-
             visualizer.update(data)
 
     except KeyboardInterrupt:
