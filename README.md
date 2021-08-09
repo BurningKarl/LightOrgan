@@ -60,19 +60,16 @@ This should play back the recorded audio, if there is only silence you need to d
 The audio signal output of the Raspberry Pi for the user pi can only be captured as the user pi 
 but at the same time to control the LED strip access to `/dev/mem` is needed which is only given to the root user.
 I solved this problem by creating two different python scripts: 
-One runs as the user pi and analyzes the audio signal (`realtime_fft.py`) and one runs as root and controls the LED strip (`stdin_to_led_strip.py`).
-As the name of the second script suggests, they communicate through stdin and stdout.
+One runs as the user pi and captures the audio stream (`audio_to_stdout.py`) and one runs as root and controls the LED strip (`stdin_to_led_strip.py`).
+As the name of the scripts suggests, they communicate through stdin and stdout.
 The stdout of one script needs to be directed to the stdin of the second script with piping on the command line.
 To use the light organ run
 ```bash
-python -u realtime_fft.py | sudo venv/bin/python stdin_to_led_strip.py
+python -u audio_to_stdout.py | sudo venv/bin/python stdin_to_led_strip.py
 ```
-
-At the time of this writing the `realtime_fft.py` script performs the audio analysis and outputs one line for every time step.
-Each line consists of multiple values from 0 to 255 that indicate the volume of different parts of the spectrum (low to high frequencies).
-The `stdin_to_led_strip.py` then takes these values and uses them as the brightness values for different LEDs and different colors (low frequencies = blue, middle frequencies = red, high frequencies = green).
-
 Note that the `-u` option forces python to not buffer the stdout stream. If omitted, the data is sent in chunks and the LED strip will not react in real time.
+
+The `stdin_to_led_strip.py` contains multiple visualizers, select the one you want inside the `main` function.
 
 ## Playing music from an external source
 
