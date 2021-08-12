@@ -12,8 +12,90 @@ import time
 logger.setLevel(logging.INFO)
 
 
-def clip(value, lower=0, upper=1):
-    return lower if value < lower else upper if value > upper else value
+# Taken from https://matplotlib.org/stable/_modules/matplotlib/colors.html#hsv_to_rgb
+def hsv_to_rgb(hsv):
+    """
+    Convert hsv values to rgb.
+
+    Parameters
+    ----------
+    hsv : (..., 3) array-like
+       All values assumed to be in range [0, 1]
+
+    Returns
+    -------
+    (..., 3) ndarray
+       Colors converted to RGB values in range [0, 1]
+    """
+    hsv = np.asarray(hsv)
+
+    # check length of the last dimension, should be _some_ sort of rgb
+    if hsv.shape[-1] != 3:
+        raise ValueError(
+            "Last dimension of input array must be 3; "
+            "shape {shp} was found.".format(shp=hsv.shape)
+        )
+
+    in_shape = hsv.shape
+    hsv = np.array(
+        hsv,
+        copy=False,
+        dtype=np.promote_types(hsv.dtype, np.float32),  # Don't work on ints.
+        ndmin=2,  # In case input was 1D.
+    )
+
+    h = hsv[..., 0]
+    s = hsv[..., 1]
+    v = hsv[..., 2]
+
+    r = np.empty_like(h)
+    g = np.empty_like(h)
+    b = np.empty_like(h)
+
+    i = (h * 6.0).astype(int)
+    f = (h * 6.0) - i
+    p = v * (1.0 - s)
+    q = v * (1.0 - s * f)
+    t = v * (1.0 - s * (1.0 - f))
+
+    idx = i % 6 == 0
+    r[idx] = v[idx]
+    g[idx] = t[idx]
+    b[idx] = p[idx]
+
+    idx = i == 1
+    r[idx] = q[idx]
+    g[idx] = v[idx]
+    b[idx] = p[idx]
+
+    idx = i == 2
+    r[idx] = p[idx]
+    g[idx] = v[idx]
+    b[idx] = t[idx]
+
+    idx = i == 3
+    r[idx] = p[idx]
+    g[idx] = q[idx]
+    b[idx] = v[idx]
+
+    idx = i == 4
+    r[idx] = t[idx]
+    g[idx] = p[idx]
+    b[idx] = v[idx]
+
+    idx = i == 5
+    r[idx] = v[idx]
+    g[idx] = p[idx]
+    b[idx] = q[idx]
+
+    idx = s == 0
+    r[idx] = v[idx]
+    g[idx] = v[idx]
+    b[idx] = v[idx]
+
+    rgb = np.stack([r, g, b], axis=-1)
+
+    return rgb.reshape(in_shape)
 
 
 class Visualizer:
@@ -127,62 +209,47 @@ class FrequencyBandsVisualizer(FrequencyVisualizer):
 
 
 class FrequencyWaveVisualizer(FrequencyVisualizer):
-    def __init__(
-        self,
-        led_count=10,
-        cycle_hues=False,
-        easing_factory=easing_functions.LinearInOut,
-    ):
+    def __init__(self, led_count=10):
         super().__init__(led_count=led_count)
-        self.hues = np.linspace(0, 1, num=self.led_count, endpoint=False)
-        self.frequency_cutoffs = np.logspace(
-            np.log10(60),
-            np.log10(2000),
-            num=self.led_count + 1,
+        self.mask = (200 <= self.frequencies) & (self.frequencies <= 4000)
+        self.bin_count = np.sum(self.mask)
+        logger.info("bin_count=" + str(self.bin_count))
+        self.bin_to_led_ratio = np.ceil(self.bin_count / self.led_count).astype("int")
+        logger.info("bin_to_led_ratio=" + str(self.bin_to_led_ratio))
+        self.active_led_count = np.ceil(self.bin_count / self.bin_to_led_ratio).astype(
+            "int"
         )
-        logger.info(f"frequency_cutoffs={self.frequency_cutoffs}")
-        self.bin_masks = [
-            (self.frequency_cutoffs[i] < self.frequencies)
-            & (self.frequencies <= self.frequency_cutoffs[i + 1])
-            for i in range(self.led_count)
-        ]
-        self.bin_sizes = [np.sum(mask) for mask in self.bin_masks]
-        logger.info(f"bin_sizes={self.bin_sizes}")
-
-        self.cycle_hues = cycle_hues
-        self.last_hue_update = time.monotonic()
-
-        self.easing_function = easing_factory(start=0, end=1, duration=1)
+        logger.info("active_led_count=" + str(self.active_led_count))
+        self.padding = -(self.bin_count % self.bin_to_led_ratio) % self.bin_to_led_ratio
+        logger.info("padding=" + str(self.padding))
+        self.hues = np.linspace(0, 1, num=self.active_led_count, endpoint=False)
 
     def update_leds(self, normalized_amplitudes):
-        if self.cycle_hues and int(time.monotonic() * 10) > int(
-            self.last_hue_update * 10
-        ):
-            self.hues = np.roll(self.hues, 1)
-            logger.debug(f"hues: {self.hues!r}")
-            self.last_hue_update = time.monotonic()
-
-        brightness_values = [
-            clip(np.sum(normalized_amplitudes[mask]) / size)
-            for mask, size in zip(self.bin_masks, self.bin_sizes)
-        ]
-        brightness_values = [self.easing_function(v) for v in brightness_values]
-        logger.debug(
-            "brightness_values: "
-            + (", ".join([f"{val:0.03f}" for val in brightness_values]))
+        padded_amplitudes = np.pad(
+            normalized_amplitudes[self.mask], (0, self.padding), mode="edge"
         )
+        frequency_buckets = padded_amplitudes.reshape(-1, self.bin_to_led_ratio)
+        brightness_values = np.clip(
+            np.mean(
+                frequency_buckets,
+                axis=1,
+            ),
+            a_min=0,
+            a_max=1,
+        )
+        # brightness_values **= 2
+        hsv_colors = np.stack(
+            (self.hues, np.ones(len(self.hues)), brightness_values), axis=1
+        )
+        rgb_colors = np.trunc(hsv_to_rgb(hsv_colors) * 255)
 
-        for i, (hue, brightness) in enumerate(zip(self.hues, brightness_values)):
-            rgb_color = colorsys.hsv_to_rgb(hue, 1, brightness)
-            led_color = Color(*tuple(round(c * 255) for c in rgb_color))
-            self.strip.setPixelColor(i, led_color)
+        for i, (r, g, b) in enumerate(rgb_colors):
+            self.strip.setPixelColor(i, Color(int(r), int(g), int(b)))
         self.strip.show()
 
 
 def main():
-    visualizer = FrequencyWaveVisualizer(
-        led_count=16, easing_factory=easing_functions.CubicEaseIn
-    )
+    visualizer = FrequencyWaveVisualizer(led_count=150)
 
     try:
         for line in sys.stdin:
