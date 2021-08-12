@@ -1,5 +1,6 @@
 import base64
 import colorsys
+import easing_functions
 import logging
 from logzero import logger
 import numpy as np
@@ -126,12 +127,17 @@ class FrequencyBandsVisualizer(FrequencyVisualizer):
 
 
 class FrequencyWaveVisualizer(FrequencyVisualizer):
-    def __init__(self, led_count=10, cycle_hues=False):
+    def __init__(
+        self,
+        led_count=10,
+        cycle_hues=False,
+        easing_factory=easing_functions.LinearInOut,
+    ):
         super().__init__(led_count=led_count)
         self.hues = np.linspace(0, 1, num=self.led_count, endpoint=False)
         self.frequency_cutoffs = np.logspace(
             np.log10(60),
-            np.log10(4000),
+            np.log10(2000),
             num=self.led_count + 1,
         )
         logger.info(f"frequency_cutoffs={self.frequency_cutoffs}")
@@ -146,6 +152,8 @@ class FrequencyWaveVisualizer(FrequencyVisualizer):
         self.cycle_hues = cycle_hues
         self.last_hue_update = time.monotonic()
 
+        self.easing_function = easing_factory(start=0, end=1, duration=1)
+
     def update_leds(self, normalized_amplitudes):
         if self.cycle_hues and int(time.monotonic() * 10) > int(
             self.last_hue_update * 10
@@ -158,6 +166,7 @@ class FrequencyWaveVisualizer(FrequencyVisualizer):
             clip(np.sum(normalized_amplitudes[mask]) / size)
             for mask, size in zip(self.bin_masks, self.bin_sizes)
         ]
+        brightness_values = [self.easing_function(v) for v in brightness_values]
         logger.debug(
             "brightness_values: "
             + (", ".join([f"{val:0.03f}" for val in brightness_values]))
@@ -171,7 +180,9 @@ class FrequencyWaveVisualizer(FrequencyVisualizer):
 
 
 def main():
-    visualizer = FrequencyWaveVisualizer(led_count=16)
+    visualizer = FrequencyWaveVisualizer(
+        led_count=16, easing_factory=easing_functions.CubicEaseIn
+    )
 
     try:
         for line in sys.stdin:
