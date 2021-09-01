@@ -22,10 +22,16 @@ git clone https://github.com/BurningKarl/LightOrgan.git
 cd LightOrgan
 python3 -m venv venv
 source venv/bin/activate
+pip install llvmlite-0.37.0-cp37-cp37m-linux_armv7l.whl
 pip install -r requirements.txt
 ```
-The `source venv/bin/activate` command activates the current virtual environment in the `venv` folder so that `python` and `pip` use the correct executables.
+
+The `source venv/bin/activate` command activates the newly created virtual environment in the `venv` folder so that `python` and `pip` use the correct executables.
 It can be deactivated by `deactivate`.
+
+The second to last command installs `llvmlite`, a dependency of the `librosa` library needed for audio analysis.
+As the version on PyPI does not have Raspberry Pi support, I have included my self-compiled wheel here.
+For reference, the guide to building llvmlite manually can be found at https://llvmlite.readthedocs.io/en/latest/admin-guide/install.html#building-manually.
 
 ### Step 2: WS2812 setup
 I used https://github.com/jgarff/rpi_ws281x/blob/master/README.md to help me to set up my WS2812B LED strip. 
