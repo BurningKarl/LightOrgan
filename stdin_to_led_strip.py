@@ -1,6 +1,7 @@
 import base64
 import colorsys
 import easing_functions
+import librosa
 import logging
 from logzero import logger
 import numpy as np
@@ -10,6 +11,7 @@ import sys
 import time
 
 logger.setLevel(logging.INFO)
+logger.info("Libraries loaded")
 
 
 # Taken from https://matplotlib.org/stable/_modules/matplotlib/colors.html#hsv_to_rgb
@@ -141,17 +143,21 @@ class Visualizer:
 
 class FrequencyVisualizer(Visualizer):
     FRAMERATE = 44100  # Number of frames per second
-    FFT_SIZE = 44100 // 10  # Number of frames included in the FFT
+    FFT_SIZE = 4096  # Number of frames included in the FFT
     MAX_BRIGHTNESS_AMPLITUDE = 3_000_000
 
     def __init__(self, led_count):
         super().__init__(led_count=led_count)
-        self.signal = np.zeros(self.FFT_SIZE, dtype=np.int16)
-        self.frequencies = scipy.fft.fftfreq(self.signal.size, 1 / self.FRAMERATE)
+        self.signal = np.zeros(self.FFT_SIZE, dtype=np.float64)
+        self.frequencies = librosa.fft_frequencies(
+            sr=self.FRAMERATE, n_fft=self.FFT_SIZE
+        )
 
     def update(self, new_data):
         self.signal = np.concatenate((self.signal[len(new_data) :], new_data))
-        amplitudes = abs(scipy.fft.fft(self.signal))
+        amplitudes = np.abs(
+            librosa.stft(self.signal, n_fft=self.FFT_SIZE, center=False)
+        ).reshape(-1)
         self.update_leds(amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE)
 
     def update_leds(self, normalized_amplitudes):
@@ -241,7 +247,7 @@ class FrequencyWaveVisualizer(FrequencyVisualizer):
         hsv_colors = np.stack(
             (self.hues, np.ones(len(self.hues)), brightness_values), axis=1
         )
-        rgb_colors = (hsv_to_rgb(hsv_colors) * 255).astype('uint')
+        rgb_colors = (hsv_to_rgb(hsv_colors) * 255).astype("uint")
         r, g, b = np.hsplit(rgb_colors, 3)
         bit_colors = r << 16 | g << 8 | b
         for i, color in enumerate(bit_colors):
@@ -254,8 +260,8 @@ def main():
 
     try:
         for line in sys.stdin:
-            data = np.frombuffer(base64.b64decode(line), dtype="int16")
-            visualizer.update(data)
+            data = np.frombuffer(base64.b64decode(line), dtype=np.int16)
+            visualizer.update(data.astype(np.float64))
 
     except KeyboardInterrupt:
         visualizer.turn_off_leds()

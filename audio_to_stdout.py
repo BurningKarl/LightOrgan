@@ -2,6 +2,7 @@ import alsaaudio
 import base64
 from logzero import logger
 import sys
+import time
 
 
 FRAMERATE = 44100  # Frames per second
@@ -22,6 +23,8 @@ def main():
     capture_device = open_capture_device(framerate=FRAMERATE, chunk_size=CHUNK_SIZE)
 
     logger.info("PCM set up")
+    time.sleep(10)
+    logger.info("Slept for ten seconds")
 
     while True:
         try:
