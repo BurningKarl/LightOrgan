@@ -241,10 +241,11 @@ class FrequencyWaveVisualizer(FrequencyVisualizer):
         hsv_colors = np.stack(
             (self.hues, np.ones(len(self.hues)), brightness_values), axis=1
         )
-        rgb_colors = np.trunc(hsv_to_rgb(hsv_colors) * 255)
-
-        for i, (r, g, b) in enumerate(rgb_colors):
-            self.strip.setPixelColor(i, Color(int(r), int(g), int(b)))
+        rgb_colors = (hsv_to_rgb(hsv_colors) * 255).astype('uint')
+        r, g, b = np.hsplit(rgb_colors, 3)
+        bit_colors = r << 16 | g << 8 | b
+        for i, color in enumerate(bit_colors):
+            self.strip.setPixelColor(i, int(color))
         self.strip.show()
 
 
