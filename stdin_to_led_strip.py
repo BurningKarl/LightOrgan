@@ -128,7 +128,6 @@ class FrequencyWaveVisualizer(Visualizer):
     def __init__(
         self,
         led_count=10,
-        cycle_hues=False,
         easing_factory=easing_functions.LinearInOut,
     ):
         super().__init__(led_count=led_count)
@@ -151,9 +150,6 @@ class FrequencyWaveVisualizer(Visualizer):
         self.bin_sizes = [np.sum(mask) for mask in self.bin_masks]
         logger.info(f"bin_sizes={self.bin_sizes}")
 
-        self.cycle_hues = cycle_hues
-        self.last_hue_update = time.monotonic()
-
         self.easing_function = easing_factory(start=0, end=1, duration=1)
 
     def update(self, new_data):
@@ -164,13 +160,6 @@ class FrequencyWaveVisualizer(Visualizer):
         self.update_leds(amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE)
 
     def update_leds(self, normalized_amplitudes):
-        if self.cycle_hues and int(time.monotonic() * 10) > int(
-            self.last_hue_update * 10
-        ):
-            self.hues = np.roll(self.hues, 1)
-            logger.debug(f"hues: {self.hues!r}")
-            self.last_hue_update = time.monotonic()
-
         brightness_values = [
             clip(np.sum(normalized_amplitudes[mask]) / size)
             for mask, size in zip(self.bin_masks, self.bin_sizes)
