@@ -59,33 +59,10 @@ class Visualizer:
         pass
 
 
-class FrequencyVisualizer(Visualizer):
+class FrequencyBandsVisualizer(Visualizer):
     FRAMERATE = 44100  # Number of frames per second
     FFT_SIZE = 4096  # Number of frames included in the FFT
     MAX_BRIGHTNESS_AMPLITUDE = 3_000_000
-
-    def __init__(self, led_count):
-        super().__init__(led_count=led_count)
-        self.signal = np.zeros(self.FFT_SIZE, dtype=np.float64)
-        self.frequencies = librosa.fft_frequencies(
-            sr=self.FRAMERATE, n_fft=self.FFT_SIZE
-        )
-
-    def update(self, new_data):
-        self.signal = np.concatenate((self.signal[len(new_data) :], new_data))
-        amplitudes = np.abs(
-            librosa.stft(self.signal, n_fft=self.FFT_SIZE, center=False)
-        ).reshape(-1)
-        self.update_leds(amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE)
-
-    def update_leds(self, normalized_amplitudes):
-        brightness = int(255 * clip(np.average(normalized_amplitudes)))
-        for i in range(self.strip.numPixels()):
-            self.strip.setPixelColor(i, Color(brightness, brightness, brightness))
-        self.strip.show()
-
-
-class FrequencyBandsVisualizer(FrequencyVisualizer):
     COLORS = [
         (2 / 3 + 0.025, 1.00, 1),  # Pure blue
         (0 / 3, 1.00, 1),  # Pure red
@@ -95,6 +72,10 @@ class FrequencyBandsVisualizer(FrequencyVisualizer):
     def __init__(self, leds_per_band=4):
         led_count = leds_per_band * 3
         super().__init__(led_count=led_count)
+        self.signal = np.zeros(self.FFT_SIZE, dtype=np.float64)
+        self.frequencies = librosa.fft_frequencies(
+            sr=self.FRAMERATE, n_fft=self.FFT_SIZE
+        )
         self.leds_per_band = leds_per_band
 
         # Human hearing range: 20Hz to 20,000Hz
@@ -114,9 +95,16 @@ class FrequencyBandsVisualizer(FrequencyVisualizer):
         ]
         self.band_sizes = [np.sum(mask) for mask in self.band_masks]
 
+    def update(self, new_data):
+        self.signal = np.concatenate((self.signal[len(new_data) :], new_data))
+        amplitudes = np.abs(
+            librosa.stft(self.signal, n_fft=self.FFT_SIZE, center=False)
+        ).reshape(-1)
+        self.update_leds(amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE)
+
     def update_leds(self, normalized_amplitudes):
         brightness_values = [
-            clip(np.sum(normalized_amplitudes[mask]) / size)
+            clip(np.sum(normalized_amplitudes[mask]) / size, a_min=0, a_max=1)
             for mask, size in zip(self.band_masks, self.band_sizes)
         ]
 
@@ -132,7 +120,11 @@ class FrequencyBandsVisualizer(FrequencyVisualizer):
         self.strip.show()
 
 
-class FrequencyWaveVisualizer(FrequencyVisualizer):
+class FrequencyWaveVisualizer(Visualizer):
+    FRAMERATE = 44100  # Number of frames per second
+    FFT_SIZE = 4096  # Number of frames included in the FFT
+    MAX_BRIGHTNESS_AMPLITUDE = 3_000_000
+
     def __init__(
         self,
         led_count=10,
@@ -140,6 +132,10 @@ class FrequencyWaveVisualizer(FrequencyVisualizer):
         easing_factory=easing_functions.LinearInOut,
     ):
         super().__init__(led_count=led_count)
+        self.signal = np.zeros(self.FFT_SIZE, dtype=np.float64)
+        self.frequencies = librosa.fft_frequencies(
+            sr=self.FRAMERATE, n_fft=self.FFT_SIZE
+        )
         self.hues = np.linspace(0, 1, num=self.led_count, endpoint=False)
         self.frequency_cutoffs = np.logspace(
             np.log10(60),
@@ -159,6 +155,13 @@ class FrequencyWaveVisualizer(FrequencyVisualizer):
         self.last_hue_update = time.monotonic()
 
         self.easing_function = easing_factory(start=0, end=1, duration=1)
+
+    def update(self, new_data):
+        self.signal = np.concatenate((self.signal[len(new_data) :], new_data))
+        amplitudes = np.abs(
+            librosa.stft(self.signal, n_fft=self.FFT_SIZE, center=False)
+        ).reshape(-1)
+        self.update_leds(amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE)
 
     def update_leds(self, normalized_amplitudes):
         if self.cycle_hues and int(time.monotonic() * 10) > int(
