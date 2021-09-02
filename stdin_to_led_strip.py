@@ -10,7 +10,7 @@ import scipy.fft
 import sys
 import time
 
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 logger.info("Libraries loaded")
 
 
@@ -123,47 +123,59 @@ class FrequencyBandsVisualizer(Visualizer):
 class FrequencyWaveVisualizer(Visualizer):
     FRAMERATE = 44100  # Number of frames per second
     FFT_SIZE = 4096  # Number of frames included in the FFT
-    MAX_BRIGHTNESS_AMPLITUDE = 3_000_000
+    MAX_BRIGHTNESS_AMPLITUDE = 1_000_000
 
     def __init__(
         self,
-        led_count=10,
+        num_octaves=8,  # Must be <= 12 for FFT_SIZE=4096
+        leds_per_octave=2,
+        min_frequency=librosa.note_to_hz("C1"),
         easing_factory=easing_functions.LinearInOut,
     ):
-        super().__init__(led_count=led_count)
+        super().__init__(led_count=num_octaves * leds_per_octave)
+        self.num_octaves = num_octaves
+        self.leds_per_octave = leds_per_octave
+        self.min_frequency = min_frequency
+
         self.signal = np.zeros(self.FFT_SIZE, dtype=np.float64)
-        self.frequencies = librosa.fft_frequencies(
-            sr=self.FRAMERATE, n_fft=self.FFT_SIZE
+        # Somehow the first call to librosa.cqt takes longer than all
+        # subsequent ones, so we trigger this here
+        librosa.cqt(
+            self.signal,
+            sr=self.FRAMERATE,
+            hop_length=self.FFT_SIZE * 2,
+            fmin=self.min_frequency,
+            n_bins=self.led_count,
+            bins_per_octave=self.leds_per_octave,
         )
+
+        frequencies = librosa.cqt_frequencies(
+            n_bins=self.led_count,
+            fmin=self.min_frequency,
+            bins_per_octave=self.leds_per_octave,
+        )
+        logger.info(f"frequencies={frequencies}")
+
         self.hues = np.linspace(0, 1, num=self.led_count, endpoint=False)
-        self.frequency_cutoffs = np.logspace(
-            np.log10(60),
-            np.log10(2000),
-            num=self.led_count + 1,
-        )
-        logger.info(f"frequency_cutoffs={self.frequency_cutoffs}")
-        self.bin_masks = [
-            (self.frequency_cutoffs[i] < self.frequencies)
-            & (self.frequencies <= self.frequency_cutoffs[i + 1])
-            for i in range(self.led_count)
-        ]
-        self.bin_sizes = [np.sum(mask) for mask in self.bin_masks]
-        logger.info(f"bin_sizes={self.bin_sizes}")
 
         self.easing_function = easing_factory(start=0, end=1, duration=1)
 
     def update(self, new_data):
         self.signal = np.concatenate((self.signal[len(new_data) :], new_data))
         amplitudes = np.abs(
-            librosa.stft(self.signal, n_fft=self.FFT_SIZE, center=False)
+            librosa.cqt(
+                self.signal,
+                sr=self.FRAMERATE,
+                hop_length=self.FFT_SIZE * 2,
+                fmin=self.min_frequency,
+                n_bins=self.led_count,
+                bins_per_octave=self.leds_per_octave,
+            )
         ).reshape(-1)
         self.update_leds(amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE)
 
     def update_leds(self, normalized_amplitudes):
-        brightness_values = [
-            clip(np.sum(normalized_amplitudes[mask]) / size)
-            for mask, size in zip(self.bin_masks, self.bin_sizes)
-        ]
+        brightness_values = np.clip(normalized_amplitudes, a_min=0, a_max=1)
         brightness_values = [self.easing_function(v) for v in brightness_values]
         logger.debug(
             "brightness_values: "
@@ -179,7 +191,7 @@ class FrequencyWaveVisualizer(Visualizer):
 
 def main():
     visualizer = FrequencyWaveVisualizer(
-        led_count=16, easing_factory=easing_functions.LinearInOut
+        num_octaves=8, leds_per_octave=2, easing_factory=easing_functions.LinearInOut
     )
 
     try:
