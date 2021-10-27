@@ -1,0 +1,7 @@
+systemd
+Raspotify
+PyPI
+llvmlite
+GPIO
+ALSA
+underruns
