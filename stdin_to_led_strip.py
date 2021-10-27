@@ -1,9 +1,11 @@
 import base64
 import colorsys
 import easing_functions
+import functools
 import librosa
 import logging
 from logzero import logger
+import multiprocessing
 import numpy as np
 from rpi_ws281x import PixelStrip, Color
 import scipy.fft
@@ -47,16 +49,62 @@ class Visualizer:
 
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
-
         logger.info("Strip intialized")
+
+        self.raw_audio_chunks = multiprocessing.Queue()
+        self.processed_audio = multiprocessing.Queue()
 
     def turn_off_leds(self):
         for i in range(self.strip.numPixels()):
             self.strip.setPixelColor(i, Color(0, 0, 0))
         self.strip.show()
 
-    def update(self, new_data):
-        pass
+    def process_audio_chunk(self, chunk):
+        # This function should be overwritten by the subclass to perform any audio
+        # processing needed. There are no restrictions on the type of data returned
+        # here. It is passed as is to set_led_colors.
+        return chunk
+
+    def set_led_colors(self, processed_audio):
+        # This function should be overwritten by the subclass to set the color of each
+        # LED based on the processed audio data returned by process_audio_chunk.
+        for i in range(self.led_count):
+            self.strip.setPixelColor(i, Color(255, 255, 255))
+
+    def _process_audio(self):
+        while True:
+            chunk = self.raw_audio_chunks.get()
+            queue_size = self.raw_audio_chunks.qsize()
+            if queue_size > 1:
+                logger.warning(
+                    f"More audio chunks available than can be processed: "
+                    f"{queue_size}"
+                )
+            self.processed_audio.put(self.process_audio_chunk(chunk))
+
+    def _update_leds(self):
+        while True:
+            self.set_led_colors(self.processed_audio.get())
+            self.strip.show()
+
+    def run(self):
+        try:
+            processes = (
+                multiprocessing.Process(target=self._process_audio, daemon=True),
+                multiprocessing.Process(target=self._update_leds, daemon=True),
+            )
+            for process in processes:
+                process.start()
+
+            logger.info("Processes started")
+
+            for line in sys.stdin:
+                binary_data = base64.b64decode(line)
+                chunk = np.frombuffer(binary_data, dtype=np.int16).astype(np.float64)
+                self.raw_audio_chunks.put(chunk)
+        finally:
+            for process in processes:
+                process.terminate()
 
 
 class FrequencyBandsVisualizer(Visualizer):
@@ -190,15 +238,13 @@ class FrequencyWaveVisualizer(Visualizer):
 
 
 def main():
-    visualizer = FrequencyWaveVisualizer(
-        num_octaves=8, leds_per_octave=2, easing_factory=easing_functions.LinearInOut
-    )
+    # visualizer = FrequencyWaveVisualizer(
+    #     num_octaves=8, leds_per_octave=2, easing_factory=easing_functions.LinearInOut
+    # )
+    visualizer = Visualizer(led_count=10)
 
     try:
-        for line in sys.stdin:
-            data = np.frombuffer(base64.b64decode(line), dtype=np.int16)
-            visualizer.update(data.astype(np.float64))
-
+        visualizer.run()
     except KeyboardInterrupt:
         visualizer.turn_off_leds()
 

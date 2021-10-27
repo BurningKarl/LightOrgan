@@ -20,11 +20,11 @@ def open_capture_device(framerate, chunk_size):
 
 
 def main():
-    capture_device = open_capture_device(framerate=FRAMERATE, chunk_size=CHUNK_SIZE)
-
-    logger.info("PCM set up")
     time.sleep(15)
     logger.info("Slept for fifteen seconds")
+
+    capture_device = open_capture_device(framerate=FRAMERATE, chunk_size=CHUNK_SIZE)
+    logger.info("PCM set up")
 
     while True:
         try:
