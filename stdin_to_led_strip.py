@@ -1,3 +1,4 @@
+import abc
 import base64
 import colorsys
 import easing_functions
@@ -39,7 +40,7 @@ class Timer:
             self.shared.value += time.monotonic() - self.start_time
 
 
-class Visualizer:
+class Visualizer(abc.ABC):
     # LED strip configuration:
     LED_PIN = 21
     # LED_PIN = 10  # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
@@ -51,7 +52,7 @@ class Visualizer:
     )
     LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
-    def __init__(self, led_count=10):
+    def __init__(self, led_count):
         super().__init__()
         self.led_count = led_count
 
@@ -81,17 +82,18 @@ class Visualizer:
             self.strip.setPixelColor(i, Color(0, 0, 0))
         self.strip.show()
 
+    @abc.abstractmethod
     def process_audio_chunk(self, chunk):
-        # This function should be overwritten by the subclass to perform any audio
+        # This function needs to be overwritten by the subclass to perform any audio
         # processing needed. There are no restrictions on the type of data returned
         # here. It is passed as is to set_led_colors.
         return chunk
 
+    @abc.abstractmethod
     def set_led_colors(self, processed_audio):
-        # This function should be overwritten by the subclass to set the color of each
-        # LED based on the processed audio data returned by process_audio_chunk.
-        for i in range(self.led_count):
-            self.strip.setPixelColor(i, Color(255, 255, 255))
+        # This function needs to be overwritten by the subclass to set the color of
+        # each LED based on the processed audio data returned by process_audio_chunk.
+        pass
 
     def _process_audio(self):
         while True:
@@ -147,6 +149,66 @@ class Visualizer:
         finally:
             for process in processes:
                 process.terminate()
+
+
+class StftVisualizer(Visualizer):
+    FRAMERATE = 44100  # Number of frames per second
+    FFT_SIZE = 4096  # Number of frames included in the FFT
+    MAX_BRIGHTNESS_AMPLITUDE = 3_000_000
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.signal = np.zeros(self.FFT_SIZE, dtype=np.float64)
+        self.frequencies = librosa.fft_frequencies(
+            sr=self.FRAMERATE, n_fft=self.FFT_SIZE
+        )
+
+    def process_audio_chunk(self, chunk):
+        self.signal = np.concatenate((self.signal[len(chunk) :], chunk))
+        amplitudes = np.abs(
+            librosa.stft(self.signal, n_fft=self.FFT_SIZE, center=False)
+        ).reshape(-1)
+        return amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE
+
+
+class ColorsFactory:
+    @staticmethod
+    def RAINBOW(led_count):
+        return [
+            colorsys.hsv_to_rgb(hue, 1, 1)
+            for hue in np.linspace(0, 1, led_count, endpoint=False)
+        ]
+
+
+class BrightnessVisualizer(Visualizer):
+    def __init__(self, *args, rgb_colors_factory=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if rgb_colors_factory is not None:
+            self.rgb_colors = rgb_colors_factory(self.led_count)
+        else:
+            self.rgb_colors = [(1, 1, 1) for _ in range(self.led_count)]
+        self.rgb_colors = np.array(self.rgb_colors, dtype=np.float64)
+
+    def set_led_brightness_values(self, brightness_values):
+        colors = np.clip(brightness_values, 0, 1).reshape(-1, 1) * self.rgb_colors
+        bit_colors = [
+            Color(round(red * 255), round(green * 255), round(blue * 255))
+            for (red, green, blue) in colors
+        ]
+        for i, bit_color in enumerate(bit_colors):
+            self.strip.setPixelColor(i, bit_color)
+
+
+class StftBrightnessVisualizer(StftVisualizer, BrightnessVisualizer):
+    def set_led_colors(self, normalized_amplitudes):
+        # Simple downsampling
+        data_length = normalized_amplitudes.shape[0]
+        brightness_values = (
+            normalized_amplitudes[: data_length - data_length % self.led_count]
+            .reshape(self.led_count, -1)
+            .mean(axis=1)
+        )
+        self.set_led_brightness_values(brightness_values)
 
 
 class FrequencyBandsVisualizer(Visualizer):
@@ -280,10 +342,10 @@ class FrequencyWaveVisualizer(Visualizer):
 
 
 def main():
-    # visualizer = FrequencyWaveVisualizer(
-    #     num_octaves=8, leds_per_octave=2, easing_factory=easing_functions.LinearInOut
-    # )
-    visualizer = Visualizer(led_count=10)
+    visualizer = StftBrightnessVisualizer(
+        led_count=10,
+        rgb_colors_factory=ColorsFactory.RAINBOW,
+    )
 
     try:
         visualizer.run()
