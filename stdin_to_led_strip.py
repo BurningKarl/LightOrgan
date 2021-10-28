@@ -16,8 +16,27 @@ logger.setLevel(logging.DEBUG)
 logger.info("Libraries loaded")
 
 
+REPORT_CYCLE = 50
+
+
 def clip(value, lower=0, upper=1):
     return lower if value < lower else upper if value > upper else value
+
+
+class Timer:
+    def __init__(self):
+        self.shared = multiprocessing.Value("d", 0)
+
+    @property
+    def value(self):
+        return self.shared.value
+
+    def __enter__(self):
+        self.start_time = time.monotonic()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        with self.shared.get_lock():
+            self.shared.value += time.monotonic() - self.start_time
 
 
 class Visualizer:
@@ -54,6 +73,9 @@ class Visualizer:
         self.raw_audio_chunks = multiprocessing.Queue()
         self.processed_audio = multiprocessing.Queue()
 
+        self.audio_processing_timer = Timer()
+        self.led_timer = Timer()
+
     def turn_off_leds(self):
         for i in range(self.strip.numPixels()):
             self.strip.setPixelColor(i, Color(0, 0, 0))
@@ -74,18 +96,25 @@ class Visualizer:
     def _process_audio(self):
         while True:
             chunk = self.raw_audio_chunks.get()
+
             queue_size = self.raw_audio_chunks.qsize()
             if queue_size > 1:
                 logger.warning(
-                    f"More audio chunks available than can be processed: "
-                    f"{queue_size}"
+                    f"More audio chunks available than can be processed: {queue_size}"
                 )
-            self.processed_audio.put(self.process_audio_chunk(chunk))
+
+            with self.audio_processing_timer:
+                processed = self.process_audio_chunk(chunk)
+
+            self.processed_audio.put(processed)
 
     def _update_leds(self):
         while True:
-            self.set_led_colors(self.processed_audio.get())
-            self.strip.show()
+            data = self.processed_audio.get()
+
+            with self.led_timer:
+                self.set_led_colors(data)
+                self.strip.show()
 
     def run(self):
         try:
@@ -98,10 +127,23 @@ class Visualizer:
 
             logger.info("Processes started")
 
-            for line in sys.stdin:
+            sys.stdin.readline()  # Skip first line to get accurate timing results
+            start_time = time.monotonic()
+            for i, line in enumerate(sys.stdin, start=1):
                 binary_data = base64.b64decode(line)
                 chunk = np.frombuffer(binary_data, dtype=np.int16).astype(np.float64)
                 self.raw_audio_chunks.put(chunk)
+
+                if logger.isEnabledFor(logging.DEBUG) and i % REPORT_CYCLE == 0:
+                    total_time = time.monotonic() - start_time
+                    audio_utilitization = self.audio_processing_timer.value / total_time
+                    led_utilitization = self.led_timer.value / total_time
+                    logger.debug(
+                        f"Total: {total_time:.2f} s, "
+                        f"Audio processing: {audio_utilitization:.2%}, "
+                        f"LED strip: {led_utilitization:.2%}"
+                    )
+
         finally:
             for process in processes:
                 process.terminate()
