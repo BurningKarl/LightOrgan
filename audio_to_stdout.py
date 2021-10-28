@@ -6,7 +6,7 @@ import time
 
 
 FRAMERATE = 44100  # Frames per second
-CHUNK_SIZE = 44100 // 10  # Frames per chunk
+CHUNK_SIZE = 44100 // 11  # Frames per chunk
 
 
 def open_capture_device(framerate, chunk_size):
