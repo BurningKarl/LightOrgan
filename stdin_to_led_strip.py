@@ -20,10 +20,6 @@ logger.info("Libraries loaded")
 REPORT_CYCLE = 50
 
 
-def clip(value, lower=0, upper=1):
-    return lower if value < lower else upper if value > upper else value
-
-
 class Timer:
     def __init__(self):
         self.shared = multiprocessing.Value("d", 0)
@@ -211,22 +207,17 @@ class StftBrightnessVisualizer(StftVisualizer, BrightnessVisualizer):
         self.set_led_brightness_values(brightness_values)
 
 
-class FrequencyBandsVisualizer(Visualizer):
-    FRAMERATE = 44100  # Number of frames per second
-    FFT_SIZE = 4096  # Number of frames included in the FFT
-    MAX_BRIGHTNESS_AMPLITUDE = 3_000_000
+class FrequencyBandsVisualizer(StftVisualizer, BrightnessVisualizer):
     COLORS = [
-        (2 / 3 + 0.025, 1.00, 1),  # Pure blue
-        (0 / 3, 1.00, 1),  # Pure red
-        (1 / 3 - 0.025, 1.00, 1),  # Pure green
+        (0, 0, 1),  # Pure blue
+        (1, 0, 0),  # Pure red
+        (0, 1, 0),  # Pure green
     ]
 
     def __init__(self, leds_per_band=4):
-        led_count = leds_per_band * 3
-        super().__init__(led_count=led_count)
-        self.signal = np.zeros(self.FFT_SIZE, dtype=np.float64)
-        self.frequencies = librosa.fft_frequencies(
-            sr=self.FRAMERATE, n_fft=self.FFT_SIZE
+        super().__init__(
+            led_count=leds_per_band * len(self.COLORS),
+            rgb_colors_factory=lambda _: np.repeat(self.COLORS, leds_per_band, axis=0),
         )
         self.leds_per_band = leds_per_band
 
@@ -238,7 +229,7 @@ class FrequencyBandsVisualizer(Visualizer):
         # Low midrange    250 - 500      Bass instruments
         # Midrange        500 - 2000     Instruments & vocals
         # Upper midrange  2000 - 4000    Percussion & vocals
-        # Presence        4000 - 6000    Clarity & defintion
+        # Presence        4000 - 6000    Clarity & definition
         # Brilliance      6000 - 20000   Sparkle
         self.band_masks = [
             (250 < self.frequencies) & (self.frequencies <= 500),
@@ -247,29 +238,13 @@ class FrequencyBandsVisualizer(Visualizer):
         ]
         self.band_sizes = [np.sum(mask) for mask in self.band_masks]
 
-    def update(self, new_data):
-        self.signal = np.concatenate((self.signal[len(new_data) :], new_data))
-        amplitudes = np.abs(
-            librosa.stft(self.signal, n_fft=self.FFT_SIZE, center=False)
-        ).reshape(-1)
-        self.update_leds(amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE)
-
-    def update_leds(self, normalized_amplitudes):
+    def set_led_colors(self, normalized_amplitudes):
         brightness_values = [
-            clip(np.sum(normalized_amplitudes[mask]) / size, a_min=0, a_max=1)
+            np.sum(normalized_amplitudes[mask]) / size
             for mask, size in zip(self.band_masks, self.band_sizes)
         ]
-
-        for color_index, (base_color, value) in enumerate(
-            zip(self.COLORS, brightness_values)
-        ):
-            hsv_color = base_color[:2] + (value,)
-            rgb_color = colorsys.hsv_to_rgb(*hsv_color)
-            led_color = Color(*tuple(round(c * 255) for c in rgb_color))
-            offset = color_index * self.leds_per_band
-            for i in range(self.leds_per_band):
-                self.strip.setPixelColor(offset + i, led_color)
-        self.strip.show()
+        brightness_values = np.repeat(brightness_values, self.leds_per_band)
+        self.set_led_brightness_values(brightness_values)
 
 
 class FrequencyWaveVisualizer(Visualizer):
@@ -342,10 +317,7 @@ class FrequencyWaveVisualizer(Visualizer):
 
 
 def main():
-    visualizer = StftBrightnessVisualizer(
-        led_count=10,
-        rgb_colors_factory=ColorsFactory.RAINBOW,
-    )
+    visualizer = FrequencyBandsVisualizer(leds_per_band=3)
 
     try:
         visualizer.run()
