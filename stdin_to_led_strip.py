@@ -3,18 +3,34 @@ import base64
 import colorsys
 import easing_functions
 import functools
-import librosa
 import logging
 from logzero import logger
 import multiprocessing
 import numpy as np
+import os
 from rpi_ws281x import PixelStrip, Color
 import scipy.fft
 import sys
 import time
+import warnings
+
+os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa_cache"
+import librosa
+
 
 logger.setLevel(logging.DEBUG)
 logger.info("Libraries loaded")
+
+
+# Using librosa.pseudo_cqt will cause a warning similar to the following, but we can
+# safely ignore it:
+#     UserWarning: n_fft=32768 is too small for input signal of length=8192
+warnings.filterwarnings(
+    action="ignore",
+    message="*for input signal of length*",
+    category=UserWarning,
+    module="librosa[.*]",
+)
 
 
 REPORT_CYCLE = 50
@@ -149,7 +165,7 @@ class Visualizer(abc.ABC):
 
 class StftVisualizer(Visualizer):
     FRAMERATE = 44100  # Number of frames per second
-    FFT_SIZE = 4096  # Number of frames included in the FFT
+    FFT_SIZE = 2 ** 13  # Number of frames included in the FFT
     MAX_BRIGHTNESS_AMPLITUDE = 3_000_000
 
     def __init__(self, *args, **kwargs):
@@ -172,8 +188,8 @@ class StftVisualizer(Visualizer):
 
 class CqtVisualizer(Visualizer):
     FRAMERATE = 44100  # Number of frames per second
-    FFT_SIZE = 4096  # Number of frames included in the FFT
-    MAX_BRIGHTNESS_AMPLITUDE = 1_000_000
+    FFT_SIZE = 2 ** 13  # Number of frames included in the FFT
+    MAX_BRIGHTNESS_AMPLITUDE = 500_000
 
     # Judging by what values lead to librosa errors or warnings, it seems that
     # FFT_SIZE = 4096 requires min_frequency >= C3 and num_octaves <= 7
@@ -208,13 +224,14 @@ class CqtVisualizer(Visualizer):
 
         self.signal = np.concatenate((self.signal[len(chunk) :], chunk))
         amplitudes = np.abs(
-            librosa.cqt(
+            librosa.pseudo_cqt(
                 self.signal,
                 sr=self.FRAMERATE,
                 hop_length=self.FFT_SIZE * 2,
                 fmin=self.min_frequency,
                 n_bins=self.led_count,
                 bins_per_octave=self.leds_per_octave,
+                sparsity=0.1,
             )
         ).reshape(-1)
         return amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE
@@ -307,7 +324,7 @@ class FrequencyWaveVisualizer(CqtVisualizer, BrightnessVisualizer):
 
 def main():
     visualizer = FrequencyWaveVisualizer(
-        rgb_colors_factory=ColorsFactory.RAINBOW
+        rgb_colors_factory=ColorsFactory.RAINBOW,
     )
 
     try:
