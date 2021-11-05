@@ -20,6 +20,7 @@ pyparsing==2.4.7
 requests==2.26.0
 resampy==0.2.2
 rpi-ws281x==4.3.0
+samplerate==0.1.0
 scikit-learn==0.24.2
 scipy==1.7.1
 six==1.16.0
