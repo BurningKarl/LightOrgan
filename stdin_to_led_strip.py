@@ -238,6 +238,8 @@ class IirtVisualizer(Visualizer):
         self.filterbank, self.sample_rates = self.generate_filter_bank(
             self.frequencies, self.filter_layout
         )
+        self.unique_sample_rates = np.unique(self.sample_rates)
+
         self._compute_filter_power = {
             "ba": self._compute_filter_power_ba,
             "sos": self._compute_filter_power_sos,
@@ -248,7 +250,9 @@ class IirtVisualizer(Visualizer):
     def _process_audio(self):
         # A small hack to initialize the new pool inside the _process_audio process
         with multiprocessing.Pool() as pool:
-            self.process_audio_chunk = functools.partial(self.process_audio_chunk, pool=pool)
+            self.process_audio_chunk = functools.partial(
+                self.process_audio_chunk, pool=pool
+            )
             super()._process_audio()
 
     @staticmethod
@@ -271,13 +275,15 @@ class IirtVisualizer(Visualizer):
 
         self.signal = np.concatenate((self.signal[len(chunk) :], chunk))
 
-        # Adapted from `librosa.iirt`
-        resampled_signal = {
-            cur_sr: librosa.resample(
-                self.signal, self.FRAMERATE, cur_sr, res_type="polyphase"
+        resample_to_sr = functools.partial(
+            librosa.resample, self.signal, self.FRAMERATE, res_type="polyphase"
+        )
+        resampled_signal = dict(
+            zip(
+                self.unique_sample_rates,
+                pool.map(resample_to_sr, self.unique_sample_rates),
             )
-            for cur_sr in np.unique(self.sample_rates)
-        }
+        )
 
         # The same as calling self._apply_filter(resampled_signal, cur_sr, cur_filter)
         # for every (cur_sr, cur_filter) in zip(self.sample_rates, self.filterbank)
@@ -378,6 +384,7 @@ class FrequencyWaveVisualizer(IirtVisualizer, BrightnessVisualizer):
 def main():
     visualizer = FrequencyWaveVisualizer(
         rgb_colors_factory=ColorsFactory.RAINBOW,
+        leds_per_octave=4,
     )
 
     try:
