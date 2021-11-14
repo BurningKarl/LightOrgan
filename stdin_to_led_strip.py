@@ -1,6 +1,5 @@
 import abc
 import base64
-import collections
 import colorsys
 import easing_functions
 import functools
@@ -239,10 +238,6 @@ class IirtVisualizer(Visualizer):
         self.filterbank, self.sample_rates = self.generate_filter_bank(
             self.frequencies, self.filter_layout
         )
-        self.sr_to_indices = collections.defaultdict(list)
-        for i, sample_rate in enumerate(self.sample_rates):
-            self.sr_to_indices[sample_rate].append(i)
-
         self._compute_filter_power = {
             "ba": self._compute_filter_power_ba,
             "sos": self._compute_filter_power_sos,
@@ -252,37 +247,23 @@ class IirtVisualizer(Visualizer):
 
     def _process_audio(self):
         # A small hack to initialize the new pool inside the _process_audio process
-        with multiprocessing.Pool(processes=len(self.sr_to_indices)) as pool:
-            self.process_audio_chunk = functools.partial(
-                self.process_audio_chunk, pool=pool
-            )
+        with multiprocessing.Pool() as pool:
+            self.process_audio_chunk = functools.partial(self.process_audio_chunk, pool=pool)
             super()._process_audio()
 
     @staticmethod
-    def _compute_filter_power_ba(signal, original_sr, cur_sr, filters):
-        start_time = time.monotonic()
-        resampled_signal = librosa.resample(signal, original_sr, cur_sr)
-
-        power_bands = []
-        for cur_filter in filters:
-            cur_filter_output = scipy.signal.filtfilt(
-                cur_filter[0], cur_filter[1], resampled_signal, padtype=None
-            )
-            power_bands.append(np.sum(cur_filter_output ** 2))
-
-        return power_bands
+    def _compute_filter_power_ba(resampled_signal, cur_sr, cur_filter):
+        cur_filter_output = scipy.signal.filtfilt(
+            cur_filter[0], cur_filter[1], resampled_signal[cur_sr], padtype=None
+        )
+        return np.sum(cur_filter_output ** 2)
 
     @staticmethod
-    def _compute_filter_power_sos(signal, original_sr, cur_sr, filters):
-        resampled_signal = librosa.resample(signal, original_sr, cur_sr)
-
-        power_bands = []
-        for cur_filter in filters:
-            cur_filter_output = scipy.signal.sosfiltfilt(
-                cur_filter, resampled_signal, padtype=None
-            )
-            power_bands.append(np.sum(cur_filter_output ** 2))
-        return power_bands
+    def _compute_filter_power_sos(resampled_signal, cur_sr, cur_filter):
+        cur_filter_output = scipy.signal.sosfiltfilt(
+            cur_filter, resampled_signal[cur_sr], padtype=None
+        )
+        return np.sum(cur_filter_output ** 2)
 
     def process_audio_chunk(self, chunk, pool):
         if len(chunk) > self.signal.shape[0]:
@@ -290,22 +271,21 @@ class IirtVisualizer(Visualizer):
 
         self.signal = np.concatenate((self.signal[len(chunk) :], chunk))
 
-        power_results = {
-            cur_sr: pool.apply_async(
-                self._compute_filter_power,
-                kwds={
-                    "signal": self.signal,
-                    "original_sr": self.FRAMERATE,
-                    "cur_sr": cur_sr,
-                    "filters": [self.filterbank[i] for i in indices],
-                },
+        # Adapted from `librosa.iirt`
+        resampled_signal = {
+            cur_sr: librosa.resample(
+                self.signal, self.FRAMERATE, cur_sr, res_type="polyphase"
             )
-            for cur_sr, indices in self.sr_to_indices.items()
+            for cur_sr in np.unique(self.sample_rates)
         }
 
-        amplitudes = np.empty(self.sample_rates.shape)
-        for cur_sr, power_result in power_results.items():
-            amplitudes[self.sr_to_indices[cur_sr]] = power_result.get()
+        # The same as calling self._apply_filter(resampled_signal, cur_sr, cur_filter)
+        # for every (cur_sr, cur_filter) in zip(self.sample_rates, self.filterbank)
+        amplitudes = (self.FRAMERATE / self.sample_rates) * pool.starmap(
+            functools.partial(self._compute_filter_power, resampled_signal),
+            zip(self.sample_rates, self.filterbank),
+            chunksize=math.ceil(len(self.sample_rates) / pool._processes),
+        )
 
         return amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE
 
