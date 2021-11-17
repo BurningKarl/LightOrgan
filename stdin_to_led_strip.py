@@ -24,7 +24,7 @@ logger.setLevel(logging.DEBUG)
 logger.info("Libraries loaded")
 
 
-REPORT_CYCLE = 50
+REPORT_INTERVAL = 50
 
 
 class Timer:
@@ -44,31 +44,14 @@ class Timer:
 
 
 class Visualizer(abc.ABC):
-    # LED strip configuration:
-    LED_PIN = 21
-    # LED_PIN = 10  # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
-    LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
-    LED_DMA = 10  # DMA channel to use for generating signal (try 10)
-    LED_BRIGHTNESS = 255  # Set to 0 for darkest and 255 for brightest
-    LED_INVERT = (
-        False  # True to invert the signal (when using NPN transistor level shift)
-    )
-    LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
+    LED_PIN = 21  # see README
 
     def __init__(self, led_count):
         super().__init__()
         self.led_count = led_count
 
         # Create NeoPixel object with appropriate configuration.
-        self.strip = PixelStrip(
-            led_count,
-            self.LED_PIN,
-            self.LED_FREQ_HZ,
-            self.LED_DMA,
-            self.LED_INVERT,
-            self.LED_BRIGHTNESS,
-            self.LED_CHANNEL,
-        )
+        self.strip = PixelStrip(num=led_count, pin=self.LED_PIN)
 
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
@@ -103,7 +86,7 @@ class Visualizer(abc.ABC):
             chunk = self.raw_audio_chunks.get()
 
             queue_size = self.raw_audio_chunks.qsize()
-            if queue_size > 1:
+            if queue_size > 3:
                 logger.warning(
                     f"More audio chunks available than can be processed: {queue_size}"
                 )
@@ -139,7 +122,7 @@ class Visualizer(abc.ABC):
                 chunk = np.frombuffer(binary_data, dtype=np.int16).astype(np.float64)
                 self.raw_audio_chunks.put(chunk)
 
-                if logger.isEnabledFor(logging.DEBUG) and i % REPORT_CYCLE == 0:
+                if logger.isEnabledFor(logging.DEBUG) and i % REPORT_INTERVAL == 0:
                     total_time = time.monotonic() - start_time
                     audio_utilitization = self.audio_processing_timer.value / total_time
                     led_utilitization = self.led_timer.value / total_time
@@ -155,31 +138,31 @@ class Visualizer(abc.ABC):
 
 
 class StftVisualizer(Visualizer):
-    FRAMERATE = 44100  # Number of frames per second
-    FFT_SIZE = 2 ** 13  # Number of frames included in the FFT
+    SAMPLE_RATE = 44100  # Number of samples per second
+    BUFFER_SIZE = 2 ** 13  # Number of samples included in the analysis
     MAX_BRIGHTNESS_AMPLITUDE = 3_000_000
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.signal = np.zeros(self.FFT_SIZE, dtype=np.float64)
+        self.buffer = np.zeros(self.BUFFER_SIZE, dtype=np.float64)
         self.frequencies = librosa.fft_frequencies(
-            sr=self.FRAMERATE, n_fft=self.FFT_SIZE
+            sr=self.SAMPLE_RATE, n_fft=self.BUFFER_SIZE
         )
 
     def process_audio_chunk(self, chunk):
-        if len(chunk) > self.signal.shape[0]:
+        if len(chunk) > self.buffer.shape[0]:
             raise RuntimeError("The audio chunk is too large, please increase FFT_SIZE")
 
-        self.signal = np.concatenate((self.signal[len(chunk) :], chunk))
+        self.buffer = np.concatenate((self.buffer[len(chunk) :], chunk))
         amplitudes = np.abs(
-            librosa.stft(self.signal, n_fft=self.FFT_SIZE, center=False)
+            librosa.stft(self.buffer, n_fft=self.BUFFER_SIZE, center=False)
         ).reshape(-1)
         return amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE
 
 
 class IirtVisualizer(Visualizer):
-    FRAMERATE = 44100  # Number of frames per second
-    FFT_SIZE = 2 ** 13  # Number of frames included in the FFT
+    SAMPLE_RATE = 44100  # Number of samples per second
+    BUFFER_SIZE = 2 ** 13  # Number of samples included in the analysis
     MAX_BRIGHTNESS_AMPLITUDE = 1_000_000
 
     @staticmethod
@@ -245,7 +228,7 @@ class IirtVisualizer(Visualizer):
             "sos": self._compute_filter_power_sos,
         }[self.filter_layout]
 
-        self.signal = np.zeros(self.FFT_SIZE, dtype=np.float64)
+        self.buffer = np.zeros(self.BUFFER_SIZE, dtype=np.float64)
 
     def _process_audio(self):
         # A small hack to initialize the new pool inside the _process_audio process
@@ -266,13 +249,13 @@ class IirtVisualizer(Visualizer):
         return np.mean(cur_filter_output ** 2)
 
     def process_audio_chunk(self, chunk, pool):
-        if len(chunk) > self.signal.shape[0]:
+        if len(chunk) > self.buffer.shape[0]:
             raise RuntimeError("The audio chunk is too large, please increase FFT_SIZE")
 
-        self.signal = np.concatenate((self.signal[len(chunk) :], chunk))
+        self.buffer = np.concatenate((self.buffer[len(chunk) :], chunk))
 
         resample_to_sr = functools.partial(
-            librosa.resample, self.signal, self.FRAMERATE, res_type="polyphase"
+            librosa.resample, self.buffer, self.SAMPLE_RATE, res_type="polyphase"
         )
         resampled_signal = dict(
             zip(
