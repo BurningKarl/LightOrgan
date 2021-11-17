@@ -3,6 +3,7 @@ import base64
 import colorsys
 import easing_functions
 import functools
+import itertools
 import logging
 from logzero import logger
 import math
@@ -179,7 +180,7 @@ class StftVisualizer(Visualizer):
 class IirtVisualizer(Visualizer):
     FRAMERATE = 44100  # Number of frames per second
     FFT_SIZE = 2 ** 13  # Number of frames included in the FFT
-    MAX_BRIGHTNESS_AMPLITUDE = 1_000_000_000
+    MAX_BRIGHTNESS_AMPLITUDE = 1_000_000
 
     @staticmethod
     def generate_filter_bank(frequencies, filter_layout):
@@ -214,13 +215,12 @@ class IirtVisualizer(Visualizer):
         self,
         *args,
         num_octaves=5,
-        leds_per_octave=2,
+        leds_per_octave=3,
         min_frequency=librosa.note_to_hz("C3"),
         filter_layout="ba",
         **kwargs,
     ):
         super().__init__(*args, led_count=num_octaves * leds_per_octave, **kwargs)
-        logger.debug(f"led_count={self.led_count}")
         self.num_octaves = num_octaves
         self.leds_per_octave = leds_per_octave
         self.min_frequency = min_frequency
@@ -256,18 +256,14 @@ class IirtVisualizer(Visualizer):
             super()._process_audio()
 
     @staticmethod
-    def _compute_filter_power_ba(resampled_signal, cur_sr, cur_filter):
-        cur_filter_output = scipy.signal.filtfilt(
-            cur_filter[0], cur_filter[1], resampled_signal[cur_sr], padtype=None
-        )
-        return np.sum(cur_filter_output ** 2)
+    def _compute_filter_power_ba(signal, cur_filter):
+        cur_filter_output = scipy.signal.filtfilt(cur_filter[0], cur_filter[1], signal)
+        return np.mean(cur_filter_output ** 2)
 
     @staticmethod
-    def _compute_filter_power_sos(resampled_signal, cur_sr, cur_filter):
-        cur_filter_output = scipy.signal.sosfiltfilt(
-            cur_filter, resampled_signal[cur_sr], padtype=None
-        )
-        return np.sum(cur_filter_output ** 2)
+    def _compute_filter_power_sos(signal, cur_filter):
+        cur_filter_output = scipy.signal.sosfiltfilt(cur_filter, signal)
+        return np.mean(cur_filter_output ** 2)
 
     def process_audio_chunk(self, chunk, pool):
         if len(chunk) > self.signal.shape[0]:
@@ -285,12 +281,15 @@ class IirtVisualizer(Visualizer):
             )
         )
 
-        # The same as calling self._apply_filter(resampled_signal, cur_sr, cur_filter)
-        # for every (cur_sr, cur_filter) in zip(self.sample_rates, self.filterbank)
-        amplitudes = (self.FRAMERATE / self.sample_rates) * pool.starmap(
-            functools.partial(self._compute_filter_power, resampled_signal),
-            zip(self.sample_rates, self.filterbank),
-            chunksize=math.ceil(len(self.sample_rates) / pool._processes),
+        amplitudes = np.array(
+            pool.starmap(
+                self._compute_filter_power,
+                (
+                    (resampled_signal[cur_sr], cur_filter)
+                    for cur_sr, cur_filter in zip(self.sample_rates, self.filterbank)
+                ),
+                chunksize=math.ceil(len(self.sample_rates) / pool._processes),
+            )
         )
 
         return amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE
@@ -384,7 +383,6 @@ class FrequencyWaveVisualizer(IirtVisualizer, BrightnessVisualizer):
 def main():
     visualizer = FrequencyWaveVisualizer(
         rgb_colors_factory=ColorsFactory.RAINBOW,
-        leds_per_octave=4,
     )
 
     try:
