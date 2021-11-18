@@ -1,5 +1,6 @@
 import logging
 from logzero import logger
+import sys
 
 
 from visualizers.highlevel import (
@@ -18,6 +19,9 @@ def main():
     visualizer = FrequencyWaveVisualizer(
         rgb_colors_factory=ColorsFactory.RAINBOW,
     )
+
+    # Signal run.py that the audio capturing can start
+    print("INITIALIZED", file=sys.stdout)
 
     try:
         visualizer.run()

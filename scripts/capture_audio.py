@@ -20,9 +20,6 @@ def open_capture_device(sample_rate, chunk_size):
 
 
 def main():
-    time.sleep(15)
-    logger.info("Slept for fifteen seconds")
-
     capture_device = open_capture_device(sample_rate=SAMPLE_RATE, chunk_size=CHUNK_SIZE)
     logger.info("PCM set up")
 

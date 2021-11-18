@@ -62,19 +62,13 @@ To make sure the audio can be recorded by the light organ script, run `arecord -
 This should play back the recorded audio, if there is only silence you need to do some troubleshooting.
 
 ### Step 4: Enjoy
-The audio signal output of the Raspberry Pi for the user pi can only be captured as the user pi 
-but at the same time to control the LED strip access to `/dev/mem` is needed which is only given to the root user.
-I solved this problem by creating two different python scripts: 
-One runs as the user pi and captures the audio stream (`audio_to_stdout.py`) and one runs as root and controls the LED strip (`stdin_to_led_strip.py`).
-As the name of the scripts suggests, they communicate through stdin and stdout.
-The stdout of one script needs to be directed to the stdin of the second script with piping on the command line.
-To use the light organ run
+To use the light organ, run
 ```bash
-python -u audio_to_stdout.py | sudo venv/bin/python stdin_to_led_strip.py
+python run.py
 ```
-Note that the `-u` option forces python to not buffer the stdout stream. If omitted, the data is sent in chunks and the LED strip will not react in real time.
 
-The `stdin_to_led_strip.py` contains multiple visualizers, select the one you want inside the `main` function.
+It starts capturing audio and visualizing it depending on the code in `visualize.py`.
+Adapt that script to your liking.
 
 ## Playing music from an external source
 
