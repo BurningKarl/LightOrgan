@@ -1,23 +1,17 @@
 import abc
 import base64
 import colorsys
-import easing_functions
 import functools
-import itertools
+import librosa
 import logging
 from logzero import logger
 import math
 import multiprocessing
 import numpy as np
-import os
-from rpi_ws281x import PixelStrip, Color
-import scipy.fft
+import rpi_ws281x
+import scipy
 import sys
 import time
-import warnings
-
-os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa_cache"
-import librosa
 
 
 logger.setLevel(logging.DEBUG)
@@ -51,7 +45,7 @@ class Visualizer(abc.ABC):
         self.led_count = led_count
 
         # Create NeoPixel object with appropriate configuration.
-        self.strip = PixelStrip(num=led_count, pin=self.LED_PIN)
+        self.strip = rpi_ws281x.PixelStrip(num=led_count, pin=self.LED_PIN)
 
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
@@ -65,7 +59,7 @@ class Visualizer(abc.ABC):
 
     def turn_off_leds(self):
         for i in range(self.strip.numPixels()):
-            self.strip.setPixelColor(i, Color(0, 0, 0))
+            self.strip.setPixelColor(i, rpi_ws281x.Color(0, 0, 0))
         self.strip.show()
 
     @abc.abstractmethod
@@ -151,7 +145,9 @@ class StftVisualizer(Visualizer):
 
     def process_audio_chunk(self, chunk):
         if len(chunk) > self.buffer.shape[0]:
-            raise RuntimeError("The audio chunk is too large, please increase FFT_SIZE")
+            raise RuntimeError(
+                "The audio chunk is too large, please increase BUFFER_SIZE"
+            )
 
         self.buffer = np.concatenate((self.buffer[len(chunk) :], chunk))
         amplitudes = np.abs(
@@ -250,7 +246,9 @@ class IirtVisualizer(Visualizer):
 
     def process_audio_chunk(self, chunk, pool):
         if len(chunk) > self.buffer.shape[0]:
-            raise RuntimeError("The audio chunk is too large, please increase FFT_SIZE")
+            raise RuntimeError(
+                "The audio chunk is too large, please increase BUFFER_SIZE"
+            )
 
         self.buffer = np.concatenate((self.buffer[len(chunk) :], chunk))
 
@@ -299,7 +297,7 @@ class BrightnessVisualizer(Visualizer):
     def set_led_brightness_values(self, brightness_values):
         colors = np.clip(brightness_values, 0, 1).reshape(-1, 1) * self.rgb_colors
         bit_colors = [
-            Color(round(red * 255), round(green * 255), round(blue * 255))
+            rpi_ws281x.Color(round(red * 255), round(green * 255), round(blue * 255))
             for (red, green, blue) in colors
         ]
         for i, bit_color in enumerate(bit_colors):
