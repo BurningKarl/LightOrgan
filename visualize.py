@@ -8,7 +8,7 @@ from visualizers.highlevel import (
     FrequencyVisualizer,
     FrequencyBandsVisualizer,
 )
-from visualizers.leds import ColorsFactory
+from visualizers.leds import ColorFactory
 
 
 def main():
@@ -19,7 +19,7 @@ def main():
 
     visualizer = FrequencyVisualizer(
         **config,
-        rgb_colors_factory=ColorsFactory.RAINBOW,
+        rgb_color_factory=ColorFactory.RAINBOW,
     )
 
     ## visualizer = FrequencyBandsVisualizer(

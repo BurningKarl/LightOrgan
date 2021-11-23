@@ -4,7 +4,7 @@ import scipy.integrate
 
 
 from .audio import StftVisualizer, IirtVisualizer
-from .leds import ColorsFactory, BrightnessVisualizer
+from .leds import BrightnessVisualizer
 
 
 # Human hearing range: 20Hz to 20,000Hz

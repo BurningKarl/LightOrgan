@@ -7,7 +7,7 @@ import rpi_ws281x
 from .base import Visualizer
 
 
-class ColorsFactory:
+class ColorFactory:
     @staticmethod
     def WHITE(led_count):
         return [(1, 1, 1) for _ in range(led_count)]
@@ -21,12 +21,14 @@ class ColorsFactory:
 
 
 class BrightnessVisualizer(Visualizer):
-    def __init__(self, *, rgb_colors_factory=ColorsFactory.WHITE, **kwargs):
+    def __init__(self, *, rgb_color_factory=ColorFactory.WHITE, **kwargs):
         super().__init__(**kwargs)
-        self.rgb_colors = np.array(rgb_colors_factory(self.led_count), dtype=np.float64)
+        self.led_base_colors = np.array(
+            rgb_color_factory(self.led_count), dtype=np.float64
+        )
 
     def set_led_brightness_values(self, brightness_values):
-        colors = np.clip(brightness_values, 0, 1).reshape(-1, 1) * self.rgb_colors
+        colors = np.clip(brightness_values, 0, 1).reshape(-1, 1) * self.led_base_colors
         bit_colors = [
             rpi_ws281x.Color(round(red * 255), round(green * 255), round(blue * 255))
             for (red, green, blue) in colors
