@@ -93,18 +93,27 @@ class FrequencyBandsVisualizer(StftVisualizer, BrightnessVisualizer):
         (0, 1, 0),  # Pure green
     ]
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.leds_per_band = self.led_count // len(self.COLORS)
-        if self.led_count != self.leds_per_band * len(self.COLORS):
-            self.led_count = self.leds_per_band * len(self.COLORS)
+    def __init__(self, *, led_count, rgb_color_factory=None, **kwargs):
+        self.leds_per_band = led_count // len(self.COLORS)
+        new_led_count = self.leds_per_band * len(self.COLORS)
+        if new_led_count != led_count:
             logger.warning(
                 f"led_count is not a multiple of {len(self.COLORS)}, "
-                f"it was reduced to {self.leds_per_band * len(self.COLORS)}"
+                f"it was reduced to {new_led_count}"
             )
 
-        # Replace LED colors by custom ones
-        self.rgb_colors = np.repeat(self.COLORS, self.leds_per_band, axis=0)
+        if rgb_color_factory is not None:
+            logger.warning(
+                f"rgb_color_factory is ignored when used with FrequencyBandsVisualizer"
+            )
+
+        super().__init__(
+            led_count=new_led_count,
+            rgb_color_factory=lambda _: np.repeat(
+                self.COLORS, self.leds_per_band, axis=0
+            ),
+            **kwargs,
+        )
 
         self.band_masks = [
             (250 < self.frequencies) & (self.frequencies <= 500),  # Low midrange
