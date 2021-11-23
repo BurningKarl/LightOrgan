@@ -67,8 +67,12 @@ To use the light organ, run
 python run.py
 ```
 
-It starts capturing audio and visualizing it depending on the code in `visualize.py`.
-Adapt that script to your liking.
+It starts capturing audio and visualizing it depending on the selected visualizer in `visualize.py`.
+Without any changes 10 LEDs with rainbow colors will light up depending on the frequency decomposition of the currently playing audio.
+LEDs closer to the start of the strip correspond to lower frequencies and those farther away correspond to higher frequencies (250 - 4000 Hz).
+
+Some simple options such as the number of LEDs and the frequency of updates are exposed as command-line options (see `python run.py --help`).
+Everything else can be changed by adapting the `visualize.py` script.
 
 ## Playing music from an external source
 
