@@ -10,34 +10,51 @@ import scipy
 from .base import Visualizer
 
 
-class StftVisualizer(Visualizer):
-    SAMPLE_RATE = 44100  # Number of samples per second
-    BUFFER_SIZE = 2 ** 13  # Number of samples included in the analysis
+class BufferedAudioVisualizer(Visualizer):
+    def __init__(self, *, sample_rate, buffer_size, chunk_size, **kwargs):
+        super().__init__(**kwargs)
+        self.sample_rate = sample_rate
+        self.buffer_size = buffer_size
+        self.chunk_size = chunk_size
+
+        if self.chunk_size > self.buffer_size:
+            raise RuntimeError(
+                "The chunk_size can be at most as large as the buffer_size"
+            )
+
+        self.buffer = np.zeros(self.buffer_size, dtype=np.float64)
+
+        # Update REPORT_INTERVAL to print every 5 seconds
+        self.REPORT_INTERVAL = math.ceil(5 / (self.chunk_size / self.sample_rate))
+
+    def update_buffer(self, chunk):
+        if len(chunk) > self.buffer.shape[0]:
+            raise RuntimeError(
+                "The audio chunk is too large, please increase the buffer size"
+            )
+
+        self.buffer = np.concatenate((self.buffer[len(chunk) :], chunk))
+
+
+class StftVisualizer(BufferedAudioVisualizer):
     MAX_BRIGHTNESS_AMPLITUDE = 3_000_000
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.buffer = np.zeros(self.BUFFER_SIZE, dtype=np.float64)
+
         self.frequencies = librosa.fft_frequencies(
-            sr=self.SAMPLE_RATE, n_fft=self.BUFFER_SIZE
+            sr=self.sample_rate, n_fft=self.buffer_size
         )
 
     def process_audio_chunk(self, chunk):
-        if len(chunk) > self.buffer.shape[0]:
-            raise RuntimeError(
-                "The audio chunk is too large, please increase BUFFER_SIZE"
-            )
-
-        self.buffer = np.concatenate((self.buffer[len(chunk) :], chunk))
+        self.update_buffer(chunk)
         amplitudes = np.abs(
-            librosa.stft(self.buffer, n_fft=self.BUFFER_SIZE, center=False)
+            librosa.stft(self.buffer, n_fft=self.buffer_size, center=False)
         ).reshape(-1)
         return amplitudes / self.MAX_BRIGHTNESS_AMPLITUDE
 
 
-class IirtVisualizer(Visualizer):
-    SAMPLE_RATE = 44100  # Number of samples per second
-    BUFFER_SIZE = 2 ** 13  # Number of samples included in the analysis
+class IirtVisualizer(BufferedAudioVisualizer):
     MAX_BRIGHTNESS_AMPLITUDE = 1_000_000
 
     @staticmethod
@@ -72,15 +89,13 @@ class IirtVisualizer(Visualizer):
     def __init__(
         self,
         *,
-        num_octaves=5,
-        leds_per_octave=3,
-        min_frequency=librosa.note_to_hz("C3"),
-        filter_layout="ba",
+        num_octaves=4,
+        min_frequency=250,
+        filter_layout="ba",  # See flayout argument of librosa.iirt
         **kwargs,
     ):
-        super().__init__(led_count=num_octaves * leds_per_octave, **kwargs)
+        super().__init__(**kwargs)
         self.num_octaves = num_octaves
-        self.leds_per_octave = leds_per_octave
         self.min_frequency = min_frequency
         self.filter_layout = filter_layout
 
@@ -103,7 +118,7 @@ class IirtVisualizer(Visualizer):
             "sos": self._compute_filter_power_sos,
         }[self.filter_layout]
 
-        self.buffer = np.zeros(self.BUFFER_SIZE, dtype=np.float64)
+        self.buffer = np.zeros(self.buffer_size, dtype=np.float64)
 
     def _process_audio(self):
         # A small hack to initialize the new pool inside the _process_audio process
@@ -124,15 +139,10 @@ class IirtVisualizer(Visualizer):
         return np.mean(cur_filter_output ** 2)
 
     def process_audio_chunk(self, chunk, pool):
-        if len(chunk) > self.buffer.shape[0]:
-            raise RuntimeError(
-                "The audio chunk is too large, please increase BUFFER_SIZE"
-            )
-
-        self.buffer = np.concatenate((self.buffer[len(chunk) :], chunk))
+        self.update_buffer(chunk)
 
         resample_to_sr = functools.partial(
-            librosa.resample, self.buffer, self.SAMPLE_RATE, res_type="polyphase"
+            librosa.resample, self.buffer, self.sample_rate, res_type="polyphase"
         )
         resampled_signal = dict(
             zip(
