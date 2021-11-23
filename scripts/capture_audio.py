@@ -7,10 +7,6 @@ import sys
 import time
 
 
-SAMPLE_RATE = 44100  # Samples per second
-CHUNK_SIZE = SAMPLE_RATE // 30  # Samples per chunk
-
-
 def open_capture_device(sample_rate, chunk_size):
     return alsaaudio.PCM(
         type=alsaaudio.PCM_CAPTURE,

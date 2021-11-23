@@ -5,9 +5,8 @@ import sys
 
 
 from visualizers.highlevel import (
-    StftBrightnessVisualizer,
+    FrequencyVisualizer,
     FrequencyBandsVisualizer,
-    FrequencyWaveVisualizer,
 )
 from visualizers.leds import ColorsFactory
 
@@ -18,11 +17,14 @@ def main():
 
     logger.info("Libraries loaded")
 
-    visualizer = StftBrightnessVisualizer(
+    visualizer = FrequencyVisualizer(
         **config,
-        logarithmic_spacing=True,
         rgb_colors_factory=ColorsFactory.RAINBOW,
     )
+
+    ## visualizer = FrequencyBandsVisualizer(
+    ##     **config,
+    ## )
 
     # Signal run.py that the audio capturing can start
     print("INITIALIZED", file=sys.stdout)

@@ -10,6 +10,17 @@ import scipy
 from .base import Visualizer
 
 
+# The classes StftVisualizer and IirtVisualizer provide process_audio_chunk
+# implementations that do audio analysis based on librosa.stft and librosa.iirt
+# respectively. Unfortunately, audio analysis based on IIRT is not fast enough even
+# though I tried heavily using custom implementations and multiprocessing. On my
+# Raspberry Pi 3B the best I could do is about 30 updates per second using 20 LEDs.
+# Additionally, this was achieved using filter_layout='ba' which exhibits flickering
+# artifacts when tested using rising pure tones.
+#
+# Therefore, the use of IirtVisualizer is discouraged!
+
+
 class BufferedAudioVisualizer(Visualizer):
     def __init__(self, *, sample_rate, buffer_size, chunk_size, **kwargs):
         super().__init__(**kwargs)

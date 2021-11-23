@@ -7,7 +7,19 @@ from .audio import StftVisualizer, IirtVisualizer
 from .leds import ColorsFactory, BrightnessVisualizer
 
 
-class StftBrightnessVisualizer(StftVisualizer, BrightnessVisualizer):
+# Human hearing range: 20Hz to 20,000Hz
+# Frequency table
+# Name            Range (in Hz)  Use
+# Sub-bass        20 - 60        Felt, sense of power
+# Bass            60 - 250       Fundamental notes
+# Low midrange    250 - 500      Bass instruments
+# Midrange        500 - 2000     Instruments & vocals
+# Upper midrange  2000 - 4000    Percussion & vocals
+# Presence        4000 - 6000    Clarity & definition
+# Brilliance      6000 - 20000   Sparkle
+
+
+class FrequencyVisualizer(StftVisualizer, BrightnessVisualizer):
     def __init__(
         self,
         *,
@@ -94,20 +106,10 @@ class FrequencyBandsVisualizer(StftVisualizer, BrightnessVisualizer):
         # Replace LED colors by custom ones
         self.rgb_colors = np.repeat(self.COLORS, self.leds_per_band, axis=0)
 
-        # Human hearing range: 20Hz to 20,000Hz
-        # Frequency table
-        # Name            Range (in Hz)  Use
-        # Sub-bass        20 - 60        Felt, sense of power
-        # Bass            60 - 250       Fundamental notes
-        # Low midrange    250 - 500      Bass instruments
-        # Midrange        500 - 2000     Instruments & vocals
-        # Upper midrange  2000 - 4000    Percussion & vocals
-        # Presence        4000 - 6000    Clarity & definition
-        # Brilliance      6000 - 20000   Sparkle
         self.band_masks = [
-            (250 < self.frequencies) & (self.frequencies <= 500),
-            (500 < self.frequencies) & (self.frequencies <= 2000),
-            (2000 < self.frequencies) & (self.frequencies <= 4000),
+            (250 < self.frequencies) & (self.frequencies <= 500),  # Low midrange
+            (500 < self.frequencies) & (self.frequencies <= 2000),  # Midrange
+            (2000 < self.frequencies) & (self.frequencies <= 4000),  # Upper midrange
         ]
         self.band_sizes = [np.sum(mask) for mask in self.band_masks]
 
@@ -120,6 +122,6 @@ class FrequencyBandsVisualizer(StftVisualizer, BrightnessVisualizer):
         self.set_led_brightness_values(brightness_values)
 
 
-class FrequencyWaveVisualizer(IirtVisualizer, BrightnessVisualizer):
+class IirtBrightnessVisualizer(IirtVisualizer, BrightnessVisualizer):
     def set_led_colors(self, normalized_amplitudes):
         self.set_led_brightness_values(normalized_amplitudes)
