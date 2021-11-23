@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 from logzero import logger
 import os
 import pathlib
@@ -43,6 +44,13 @@ def parse_options():
         help="size of buffer that holds the most recent samples and is analyzed at "
         "each update (default: 2^13 = 8192)",
     )
+    parser.add_argument(
+        "--log-level",
+        metavar="LEVEL",
+        default=logging.INFO,
+        type=lambda x: logging._nameToLevel[x],
+        help="the logging level (default: INFO)",
+    )
 
     args = vars(parser.parse_args())
 
@@ -55,6 +63,8 @@ def parse_options():
 
 def main():
     config = parse_options()
+    logger.setLevel(config["log_level"])
+
     logger.debug(f"Config options: {config}")
 
     # The following is similar to the bash command

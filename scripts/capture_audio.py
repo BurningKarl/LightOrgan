@@ -23,6 +23,7 @@ def open_capture_device(sample_rate, chunk_size):
 
 def main():
     config = json.loads(os.environ["LIGHT_ORGAN_CONFIG"])
+    logger.setLevel(config.pop("log_level"))
 
     capture_device = open_capture_device(
         sample_rate=config["sample_rate"], chunk_size=config["chunk_size"]
