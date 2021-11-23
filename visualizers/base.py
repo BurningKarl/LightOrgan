@@ -29,7 +29,7 @@ class Visualizer(abc.ABC):
     LED_PIN = 21  # see README
     REPORT_INTERVAL = 50  # Print report every ... updates
 
-    def __init__(self, led_count):
+    def __init__(self, *, led_count=10):
         super().__init__()
         self.led_count = led_count
 

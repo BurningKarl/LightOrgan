@@ -15,8 +15,8 @@ class StftVisualizer(Visualizer):
     BUFFER_SIZE = 2 ** 13  # Number of samples included in the analysis
     MAX_BRIGHTNESS_AMPLITUDE = 3_000_000
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.buffer = np.zeros(self.BUFFER_SIZE, dtype=np.float64)
         self.frequencies = librosa.fft_frequencies(
             sr=self.SAMPLE_RATE, n_fft=self.BUFFER_SIZE
@@ -71,14 +71,14 @@ class IirtVisualizer(Visualizer):
 
     def __init__(
         self,
-        *args,
+        *,
         num_octaves=5,
         leds_per_octave=3,
         min_frequency=librosa.note_to_hz("C3"),
         filter_layout="ba",
         **kwargs,
     ):
-        super().__init__(*args, led_count=num_octaves * leds_per_octave, **kwargs)
+        super().__init__(led_count=num_octaves * leds_per_octave, **kwargs)
         self.num_octaves = num_octaves
         self.leds_per_octave = leds_per_octave
         self.min_frequency = min_frequency

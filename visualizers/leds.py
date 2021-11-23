@@ -21,8 +21,8 @@ class ColorsFactory:
 
 
 class BrightnessVisualizer(Visualizer):
-    def __init__(self, *args, rgb_colors_factory=ColorsFactory.WHITE, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *, rgb_colors_factory=ColorsFactory.WHITE, **kwargs):
+        super().__init__(**kwargs)
         self.rgb_colors = np.array(rgb_colors_factory(self.led_count), dtype=np.float64)
 
     def set_led_brightness_values(self, brightness_values):

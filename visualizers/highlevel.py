@@ -10,13 +10,13 @@ from .leds import ColorsFactory, BrightnessVisualizer
 class StftBrightnessVisualizer(StftVisualizer, BrightnessVisualizer):
     def __init__(
         self,
-        *args,
+        *,
         min_frequency=250,  # ~ B3
         max_frequency=4000,  # ~ B7
         logarithmic_spacing=True,
         **kwargs
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
         if logarithmic_spacing:
             self.boundaries = np.logspace(
@@ -81,7 +81,7 @@ class FrequencyBandsVisualizer(StftVisualizer, BrightnessVisualizer):
         (0, 1, 0),  # Pure green
     ]
 
-    def __init__(self, leds_per_band=4):
+    def __init__(self, *, leds_per_band=4):
         super().__init__(
             led_count=leds_per_band * len(self.COLORS),
             rgb_colors_factory=lambda _: np.repeat(self.COLORS, leds_per_band, axis=0),
