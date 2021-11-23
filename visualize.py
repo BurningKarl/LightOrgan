@@ -1,5 +1,7 @@
+import json
 import logging
 from logzero import logger
+import os
 import sys
 
 
@@ -16,8 +18,10 @@ logger.info("Libraries loaded")
 
 
 def main():
+    config = json.loads(os.environ["LIGHT_ORGAN_CONFIG"])
+
     visualizer = StftBrightnessVisualizer(
-        led_count=10,
+        **config,
         logarithmic_spacing=True,
         rgb_colors_factory=ColorsFactory.RAINBOW,
     )

@@ -14,7 +14,7 @@ class StftBrightnessVisualizer(StftVisualizer, BrightnessVisualizer):
         min_frequency=250,  # ~ B3
         max_frequency=4000,  # ~ B7
         logarithmic_spacing=True,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
 
@@ -81,12 +81,18 @@ class FrequencyBandsVisualizer(StftVisualizer, BrightnessVisualizer):
         (0, 1, 0),  # Pure green
     ]
 
-    def __init__(self, *, leds_per_band=4):
-        super().__init__(
-            led_count=leds_per_band * len(self.COLORS),
-            rgb_colors_factory=lambda _: np.repeat(self.COLORS, leds_per_band, axis=0),
-        )
-        self.leds_per_band = leds_per_band
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.leds_per_band = self.led_count // len(self.COLORS)
+        if self.led_count != self.leds_per_band * len(self.COLORS):
+            self.led_count = self.leds_per_band * len(self.COLORS)
+            logger.warning(
+                f"led_count is not a multiple of {len(self.COLORS)}, "
+                f"it was reduced to {self.leds_per_band * len(self.COLORS)}"
+            )
+
+        # Replace LED colors by custom ones
+        self.rgb_colors = np.repeat(self.COLORS, self.leds_per_band, axis=0)
 
         # Human hearing range: 20Hz to 20,000Hz
         # Frequency table

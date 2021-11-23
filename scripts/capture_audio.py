@@ -1,6 +1,8 @@
 import alsaaudio
 import base64
+import json
 from logzero import logger
+import os
 import sys
 import time
 
@@ -20,7 +22,11 @@ def open_capture_device(sample_rate, chunk_size):
 
 
 def main():
-    capture_device = open_capture_device(sample_rate=SAMPLE_RATE, chunk_size=CHUNK_SIZE)
+    config = json.loads(os.environ["LIGHT_ORGAN_CONFIG"])
+
+    capture_device = open_capture_device(
+        sample_rate=config["sample_rate"], chunk_size=config["chunk_size"]
+    )
     logger.info("PCM set up")
 
     while True:
