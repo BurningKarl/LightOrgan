@@ -16,7 +16,9 @@ logger.info("Libraries loaded")
 
 
 def main():
-    visualizer = FrequencyWaveVisualizer(
+    visualizer = StftBrightnessVisualizer(
+        led_count=10,
+        logarithmic_spacing=True,
         rgb_colors_factory=ColorsFactory.RAINBOW,
     )
 

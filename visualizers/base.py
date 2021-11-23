@@ -83,6 +83,13 @@ class Visualizer(abc.ABC):
         while True:
             data = self.processed_audio.get()
 
+            queue_size = self.processed_audio.qsize()
+            if queue_size > 3:
+                logger.warning(
+                    f"More processed audio chunks available than can be processed: "
+                    f"{queue_size}"
+                )
+
             with self.led_timer:
                 self.set_led_colors(data)
                 self.strip.show()

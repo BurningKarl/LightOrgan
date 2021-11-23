@@ -1,5 +1,6 @@
 from logzero import logger
 import numpy as np
+import scipy.integrate
 
 
 from .audio import StftVisualizer, IirtVisualizer
@@ -7,15 +8,70 @@ from .leds import ColorsFactory, BrightnessVisualizer
 
 
 class StftBrightnessVisualizer(StftVisualizer, BrightnessVisualizer):
-    def set_led_colors(self, normalized_amplitudes):
-        # Simple downsampling
-        data_length = normalized_amplitudes.shape[0]
-        brightness_values = (
-            normalized_amplitudes[: data_length - data_length % self.led_count]
-            .reshape(self.led_count, -1)
-            .mean(axis=1)
+    def __init__(
+        self,
+        *args,
+        min_frequency=250,  # ~ B3
+        max_frequency=4000,  # ~ B7
+        logarithmic_spacing=True,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+
+        if logarithmic_spacing:
+            self.boundaries = np.logspace(
+                start=np.log10(min_frequency),
+                stop=np.log10(max_frequency),
+                base=10.0,
+                num=self.led_count + 1,
+            )
+        else:
+            self.boundaries = np.linspace(
+                start=min_frequency,
+                stop=max_frequency,
+                num=self.led_count + 1,
+            )
+
+    @staticmethod
+    def interpolate_integral(x_new, xs, ys):
+        """
+        Calculates the integral from xs[0] to t (for any t <= xs[-1]) of the
+        piecewise linear interpolant of (xs[0], ys[0]), ...
+        """
+        indices = np.searchsorted(xs, x_new, side="right") - 1
+        if (indices < 0).any():
+            raise ValueError("A value in x_new is below the interpolation range.")
+        if (x_new > np.max(xs)).any():
+            raise ValueError("A value in x_new is above the interpolation range.")
+
+        # Compute the desired values for all t in xs
+        cumulative = scipy.integrate.cumulative_trapezoid(y=ys, x=xs, initial=0)
+
+        # Compute the slope of each linear segment
+        # A zero is added at the end to avoid errors when np.max(xs) is in x_new
+        slopes = np.concatenate((np.diff(ys) / np.diff(xs), [0]))
+
+        # Look up the integral from 0 to the largest element of xs smaller than t and
+        # then add the remaining integral (which is a quadratic of the remainder)
+        x_remainder = x_new - xs[indices]
+        return (
+            cumulative[indices]
+            + (slopes[indices] / 2) * x_remainder ** 2
+            + ys[indices] * x_remainder
         )
-        self.set_led_brightness_values(brightness_values)
+
+    def set_led_colors(self, normalized_amplitudes):
+        average_amplitudes = (
+            np.diff(
+                self.interpolate_integral(
+                    x_new=self.boundaries,
+                    xs=self.frequencies,
+                    ys=normalized_amplitudes,
+                )
+            )
+            / np.diff(self.boundaries)
+        )
+        self.set_led_brightness_values(average_amplitudes)
 
 
 class FrequencyBandsVisualizer(StftVisualizer, BrightnessVisualizer):
