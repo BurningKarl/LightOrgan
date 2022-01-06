@@ -30,6 +30,13 @@ def parse_options():
         "(default: 30.0)",
     )
     parser.add_argument(
+        "--delay",
+        metavar="DELAY",
+        type=lambda val: float(val) / 1000,  # Convert to seconds
+        default=0,
+        help="delay applied to the audio signal before processing it (in ms)",
+    )
+    parser.add_argument(
         "--sample-rate",
         metavar="SR",
         type=int,
