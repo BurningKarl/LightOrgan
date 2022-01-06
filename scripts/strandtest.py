@@ -10,7 +10,7 @@ from rpi_ws281x import PixelStrip, Color
 import argparse
 
 # LED strip configuration:
-LED_COUNT = 6
+LED_COUNT = 9
 LED_PIN = 21
 # LED_PIN = 10  # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
 LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)

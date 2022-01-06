@@ -48,7 +48,7 @@ This also has the advantage that it is very easy to set up:
 A useful map of all the pins on the Raspberry Pi can be found at https://pinout.xyz/#.
 Once you connected all the wires, the LEDs will not automatically turn on. 
 You can test everything with `sudo venv/bin/python strandtest.py -c` and the first six LEDs will start to light up in various colors and patterns.
-The reason I have set `LED_COUNT = 6` is that there is a limit to the number LEDs that you can use simultaneously with the Raspberry Pi as the only power source.
+The reason I have set `LED_COUNT = 9` is that there is a limit to the number LEDs that you can use simultaneously with the Raspberry Pi as the only power source.
 A single LED can use up to 60 mA of current, and it depends on the type of Raspberry Pi what currents it allows.
 According to [this sheet](https://www.raspberrypi.org/documentation/hardware/raspberrypi/power/README.md) my Raspberry Pi 3B
 has a recommended capacity for the power supply unit of 2.5A which I assume to be close to the current the default power supply unit will provide.
@@ -59,16 +59,16 @@ You can obviously bypass these problems with an external power supply for the LE
 Check your audio setup by playing some music as the user pi.
 Execute `cvlc --play-and-exit example.mp3` using any audio file, and it should be played back via HDMI or connected headphones.
 To make sure the audio can be recorded by the light organ script, run `arecord -d 10 -f cd test.wav` while the music is playing (you may use `screen` to execute both commands at the same time) to record 10 seconds of CD quality sound and play it back via `aplay test.wav`.
-This should play back the recorded audio, if there is only silence you need to do some troubleshooting.
+This should play back the recorded audio. If there is only silence, you need to do some troubleshooting.
 
-### Step 4: Enjoy
+### Step 4: Enjoy!
 To use the light organ, run
 ```bash
 python run.py
 ```
 
 It starts capturing audio and visualizing it depending on the selected visualizer in `visualize.py`.
-Without any changes 10 LEDs with rainbow colors will light up depending on the frequency decomposition of the currently playing audio.
+Without any changes 9 LEDs with rainbow colors will light up depending on the frequency decomposition of the currently playing audio.
 LEDs closer to the start of the strip correspond to lower frequencies and those farther away correspond to higher frequencies (250 - 4000 Hz).
 
 Some simple options such as the number of LEDs and the frequency of updates are exposed as command-line options (see `python run.py --help`).
@@ -83,7 +83,7 @@ The following list contains guides to approaches I've tried so far.
 Using [Raspotify](https://github.com/dtcooper/raspotify) one can let the Raspberry Pi act as a Spotify playback device (only available for Spotify Premium users).
 First, set up Raspotify as explained in its README including the "Play via Bluetooth Speaker" section.
 Essentially, the "Play via Bluetooth Speaker" explains how to set up the systemd service as a user service such that the sound is played back as the user pi.
-This also essential here, because the python script can only pick up those sounds.
+This is essential here, because the python script can only pick up those sounds.
 
 After a successful setup, the Spotify device "raspotify (...)" should appear.
 To test whether the sound output of the Spotify Device can be captured by ALSA use `arecord` and `aplay` as explained above.
@@ -114,12 +114,6 @@ Copy the MAC address and execute `trust <MAC>` followed by `connect <MAC>` to tr
 Now your second device will redirect all audio to the Raspberry Pi where the light organ script can pick it up.
 
 ## Troubleshooting
-
-### The sound is choppy and the playback speed is too slow
-
-This happens because of so-called underruns, i.e. when the audio buffer is not filled fast enough.
-I have not yet figured out the exact cause, but I have observed that playback using `aplay` usually works fine, while the Spotify client often has this issue.
-Sometimes stopping Spotify playback, executing `aplay example.wav` and unpausing Spotify afterwards fixes the issue.
 
 ### NumPy error
 If you run into the error

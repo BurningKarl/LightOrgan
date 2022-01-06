@@ -25,9 +25,9 @@ def parse_options():
         "--update-freq",
         metavar="FREQ",
         type=float,
-        default=30,
+        default=60.0,
         help="number of times per second new audio data is retrieved from ALSA "
-        "(default: 30.0)",
+        "(default: 60.0)",
     )
     parser.add_argument(
         "--delay",
@@ -62,8 +62,7 @@ def parse_options():
     args = vars(parser.parse_args())
 
     # Replace update_freq by the corresponding chunk_size
-    args["chunk_size"] = int(args["sample_rate"] / args["update_freq"])
-    del args["update_freq"]
+    args["chunk_size"] = int(args["sample_rate"] / args.pop("update_freq"))
 
     return args
 
