@@ -58,6 +58,10 @@ class StftVisualizer(BufferedAudioVisualizer):
         )
 
     def process_audio_chunk(self, chunk):
+        if np.all(self.buffer == 0) and np.all(chunk == 0):
+            # Reduce CPU load if there is no audio playing
+            return None
+
         self.update_buffer(chunk)
         amplitudes = np.abs(
             librosa.stft(self.buffer, n_fft=self.buffer_size, center=False)
@@ -150,6 +154,10 @@ class IirtVisualizer(BufferedAudioVisualizer):
         return np.mean(cur_filter_output ** 2)
 
     def process_audio_chunk(self, chunk, pool):
+        if np.all(self.buffer == 0) and np.all(chunk == 0):
+            # Reduce CPU load if there is no audio playing
+            return None
+
         self.update_buffer(chunk)
 
         resample_to_sr = functools.partial(

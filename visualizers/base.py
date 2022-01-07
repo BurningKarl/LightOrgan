@@ -55,7 +55,8 @@ class Visualizer(abc.ABC):
     def process_audio_chunk(self, chunk):
         # This function needs to be overwritten by the subclass to perform any audio
         # processing needed. There are no restrictions on the type of data returned
-        # here. It is passed as is to set_led_colors.
+        # here. If it is not None, it is passed as is to set_led_colors. Otherwise, the
+        # data is ignored and set_led_colors is not called.
         return chunk
 
     @abc.abstractmethod
@@ -77,7 +78,8 @@ class Visualizer(abc.ABC):
             with self.audio_processing_timer:
                 processed = self.process_audio_chunk(chunk)
 
-            self.processed_audio.put(processed)
+            if processed is not None:
+                self.processed_audio.put(processed)
 
     def _update_leds(self):
         while True:
