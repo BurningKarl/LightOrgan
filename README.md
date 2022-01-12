@@ -41,13 +41,13 @@ I decided to use the PCM method on GPIO 21 (pin 40), because
 and analog audio is enough for my purposes. 
 This also has the advantage that it is very easy to set up: 
 
-* Connect the ground of the LED strip to ground of the Raspberry Pi (e.g. pin 4)
-* Connect the 5V of the LED strip to 5V of the Raspberry Pi (e.g. pin 6)
+* Connect the ground of the LED strip to ground of the Raspberry Pi (e.g. pin 6)
+* Connect the 5V of the LED strip to 5V of the Raspberry Pi (e.g. pin 4)
 * Connect the data line of the LED strip to pin 40
 
 A useful map of all the pins on the Raspberry Pi can be found at https://pinout.xyz/#.
 Once you connected all the wires, the LEDs will not automatically turn on. 
-You can test everything with `sudo venv/bin/python strandtest.py -c` and the first six LEDs will start to light up in various colors and patterns.
+You can test everything with `sudo venv/bin/python scripts/strandtest.py -c` and the first six LEDs will start to light up in various colors and patterns.
 The reason I have set `LED_COUNT = 9` is that there is a limit to the number LEDs that you can use simultaneously with the Raspberry Pi as the only power source.
 A single LED can use up to 60 mA of current, and it depends on the type of Raspberry Pi what currents it allows.
 According to [this sheet](https://www.raspberrypi.org/documentation/hardware/raspberrypi/power/README.md) my Raspberry Pi 3B
