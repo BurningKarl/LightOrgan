@@ -1,0 +1,14 @@
+[Unit]
+Description=LightOrgan
+Wants=pulseaudio.service
+
+[Service]
+Environment="PROJECT_ROOT=/home/pi/Documents/LightOrgan"
+Environment="LED_COUNT=9"
+Environment="UPDATE_FREQ=60"
+Environment="SAMPLE_RATE=88200"
+Environment="BUFFER_SIZE=16384"
+Environment="LOG_LEVEL=INFO"
+ExecStart=/bin/bash -c '${PROJECT_ROOT}/venv/bin/python ${PROJECT_ROOT}/run.py --led-count ${LED_COUNT} --update-freq ${UPDATE_FREQ} --sample-rate ${SAMPLE_RATE} --buffer-size ${BUFFER_SIZE} --log-level ${LOG_LEVEL}'
+KillMode=process
+KillSignal=SIGINT

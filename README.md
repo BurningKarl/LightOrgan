@@ -113,6 +113,28 @@ Copy the MAC address and execute `trust <MAC>` followed by `connect <MAC>` to tr
 
 Now your second device will redirect all audio to the Raspberry Pi where the light organ script can pick it up.
 
+## Running the light organ in the background
+
+It is often useful to keep the program running in the background and take back control of the command-line.
+To make this easier, I packaged it into a `systemd` user service.
+
+```bash
+cp lightorgan.service ~/.config/systemd/user/ 
+systemctl --user daemon-reload
+systemctl --user edit --full lightorgan.service
+```
+This will make the service file available to `systemd` and then open the file in an editor.
+Make sure to change `PROJECT_ROOT` to the current folder (i.e. where `run.py` can be found), save your changes and close the editor.
+
+Now, you can control the light organ with the following commands:
+```bash
+systemctl --user start lightorgan.service   # Start the light organ
+systemctl --user stop lightorgan.service    # Stop the light organ
+systemctl --user restart lightorgan.service # Restart the light organ
+systemctl --user status lightorgan.service  # Check if the light organ is running
+```
+
+
 ## Troubleshooting
 
 ### NumPy error
