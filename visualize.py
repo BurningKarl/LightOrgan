@@ -33,7 +33,8 @@ def main():
     ## )
 
     # Signal run.py that the audio capturing can start
-    print("INITIALIZED", file=sys.stdout)
+    message = {"status": "INITIALIZED", "pid": os.getpid()}
+    print(json.dumps(message), file=sys.stdout)
 
     try:
         visualizer.run()

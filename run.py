@@ -4,6 +4,7 @@ import logging
 from logzero import logger
 import os
 import pathlib
+import signal
 import subprocess
 import sys
 
@@ -47,7 +48,7 @@ def parse_options():
         "--buffer-size",
         metavar="SIZE",
         type=int,
-        default=2 ** 13,
+        default=2**13,
         help="size of buffer that holds the most recent samples and is analyzed at "
         "each update (default: 2^13 = 8192)",
     )
@@ -99,8 +100,10 @@ def main():
     )
 
     # Start capturing audio after initialization is done
-    while visualize_process.stdout.readline() != b"INITIALIZED\n":
-        pass
+    message = json.loads(visualize_process.stdout.readline().decode("utf-8"))
+    if message["status"] != "INITIALIZED":
+        raise RuntimeError("Initializing visualizer failed")
+    visualize_process_pid = str(message["pid"])
 
     capture_audio_process = subprocess.Popen(
         [python, "-u", here / "scripts" / "capture_audio.py"],
@@ -109,10 +112,15 @@ def main():
     )
 
     try:
-        capture_audio_process.wait()
+        visualize_process.wait()
     except KeyboardInterrupt:
-        # The processes handle Ctrl+C themselves
-        pass
+        capture_audio_process.send_signal(signal.SIGINT)
+        # Note that visualize_process_pid != visualize_process.pid, since the latter
+        # refers to the PID of the sudo process and not the Python process.
+        subprocess.run(["sudo", "kill", "-s", "SIGINT", visualize_process_pid])
+
+    capture_audio_process.wait()
+    visualize_process.wait()
 
 
 if __name__ == "__main__":
