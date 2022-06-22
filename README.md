@@ -4,7 +4,7 @@ A light organ using a WS2812B LED strip on a Raspberry Pi
 The light organ is able to react to all sounds played as the user pi. If the Raspberry Pi is set up as a Spotify playback device or a Bluetooth speaker (as explained below), you can easily control the music remotely.
 
 ## Hardware requirements
-1. A Raspberry Pi with Raspbian
+1. A Raspberry Pi with Raspbian 10 (buster)
 1. A WS2812B LED strip or similar
 
 ## Guide
@@ -14,22 +14,22 @@ The light organ is able to react to all sounds played as the user pi. If the Ras
 1. Enjoy your light organ by executing the correct command
 
 ### Step 1: Repo and Python setup
-Clone the repository, set up a python virtual environment and install all the necessary packages with the following commands:
+This project uses [Poetry](https://python-poetry.org/) for dependency management, so it needs to be installed first, by following the steps at https://python-poetry.org/docs/#installation.
+Executing `poetry` in the shell should show information on its usage.
+
+Afterwards, clone the repository, set up a python virtual environment and install all the necessary packages with the following commands:
 ```bash
 git clone https://github.com/BurningKarl/LightOrgan.git
 cd LightOrgan
-python3 -m venv venv
-source venv/bin/activate
 sudo apt install libatlas-base-dev
-pip install llvmlite-0.37.0-cp37-cp37m-linux_armv7l.whl
-pip install -r requirements.txt
+poetry shell
+poetry install
 ```
 
-The `source venv/bin/activate` command activates the newly created virtual environment in the `venv` folder so that `python` and `pip` use the correct executables.
-It can be deactivated by `deactivate`.
+The `poetry shell` command creates and activates a virtual environment in which we will install the required Python libraries.
+The environment can be deactivated by `exit` and reactivated by executing `poetry shell` inside the `LightOrgan` folder.
 
-The second to last command installs `llvmlite`, a dependency of the `librosa` library needed for audio analysis.
-As the version on PyPI does not have Raspberry Pi support, I have included my self-compiled wheel here.
+This repository comes with a self-compiled wheel for `llvmlite`, as it is currently not available at https://piwheels.org/ but needed for audio analysis with `librosa`.
 For reference, the guide to building llvmlite manually can be found at https://llvmlite.readthedocs.io/en/latest/admin-guide/install.html#building-manually.
 
 ### Step 2: WS2812 setup
@@ -47,7 +47,7 @@ This also has the advantage that it is very easy to set up:
 
 A useful map of all the pins on the Raspberry Pi can be found at https://pinout.xyz/#.
 Once you connected all the wires, the LEDs will not automatically turn on. 
-You can test everything with `sudo venv/bin/python scripts/strandtest.py -c` and the first six LEDs will start to light up in various colors and patterns.
+You can test everything with `sudo .venv/bin/python scripts/strandtest.py -c` and the first six LEDs will start to light up in various colors and patterns.
 The reason I have set `LED_COUNT = 9` is that there is a limit to the number LEDs that you can use simultaneously with the Raspberry Pi as the only power source.
 A single LED can use up to 60 mA of current, and it depends on the type of Raspberry Pi what currents it allows.
 According to [this sheet](https://www.raspberrypi.org/documentation/hardware/raspberrypi/power/README.md) my Raspberry Pi 3B

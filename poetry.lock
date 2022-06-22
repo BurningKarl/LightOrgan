@@ -1,0 +1,601 @@
+[[package]]
+name = "appdirs"
+version = "1.4.4"
+description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "audioread"
+version = "2.1.9"
+description = "multi-library, cross-platform audio decoding"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "certifi"
+version = "2021.5.30"
+description = "Python package for providing Mozilla's CA Bundle."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "cffi"
+version = "1.14.6"
+description = "Foreign Function Interface for Python calling C code."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+pycparser = "*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "charset-normalizer"
+version = "2.0.4"
+description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
+category = "main"
+optional = false
+python-versions = ">=3.5.0"
+
+[package.extras]
+unicode_backport = ["unicodedata2"]
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "colorama"
+version = "0.4.5"
+description = "Cross-platform colored terminal text."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "decorator"
+version = "5.0.9"
+description = "Decorators for Humans"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "easing-functions"
+version = "1.0.4"
+description = "A collection of the basic easing functions for python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "idna"
+version = "3.2"
+description = "Internationalized Domain Names in Applications (IDNA)"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "joblib"
+version = "1.0.1"
+description = "Lightweight pipelining with Python functions"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "librosa"
+version = "0.8.1"
+description = "Python module for audio and music processing"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+audioread = ">=2.0.0"
+decorator = ">=3.0.0"
+joblib = ">=0.14"
+numba = ">=0.43.0"
+numpy = ">=1.15.0"
+packaging = ">=20.0"
+pooch = ">=1.0"
+resampy = ">=0.2.2"
+scikit-learn = ">=0.14.0,<0.19.0 || >0.19.0"
+scipy = ">=1.0.0"
+soundfile = ">=0.10.2"
+
+[package.extras]
+display = ["matplotlib (>=1.5)"]
+docs = ["numpydoc", "sphinx (!=1.3.1)", "sphinx-rtd-theme (>=0.5.0,<0.6.0)", "numba (<0.50)", "matplotlib (>=2.0.0,<3.3)", "sphinx-multiversion (>=0.2.3)", "sphinx-gallery (>=0.7)", "spinxcontrib-svg2pdfconverter", "presets"]
+tests = ["matplotlib (>=3.0)", "pytest-mpl", "pytest-cov", "pytest", "contextlib2", "samplerate", "soxr"]
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "llvmlite"
+version = "0.37.0"
+description = "lightweight wrapper around basic LLVM functionality"
+category = "main"
+optional = false
+python-versions = ">=3.7,<3.10"
+
+[package.source]
+type = "file"
+url = "llvmlite-0.37.0-cp37-cp37m-linux_armv7l.whl"
+
+[[package]]
+name = "logzero"
+version = "1.7.0"
+description = "Robust and effective logging for Python 2 and 3"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+colorama = {version = "*", markers = "sys_platform == \"win32\""}
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "numba"
+version = "0.54.0"
+description = "compiling Python code using LLVM"
+category = "main"
+optional = false
+python-versions = ">=3.7,<3.10"
+
+[package.dependencies]
+llvmlite = ">=0.37.0rc1,<0.38"
+numpy = ">=1.17,<1.21"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "numpy"
+version = "1.20.3"
+description = "NumPy is the fundamental package for array computing with Python."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "packaging"
+version = "21.0"
+description = "Core utilities for Python packages"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+pyparsing = ">=2.0.2"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "pooch"
+version = "1.5.1"
+description = "Pooch manages your Python library's sample data files: it automatically downloads and stores them in a local directory, with support for versioning and corruption checks."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+appdirs = "*"
+packaging = "*"
+requests = "*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "pyalsaaudio"
+version = "0.9.0"
+description = "ALSA bindings"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "pycparser"
+version = "2.20"
+description = "C parser in Python"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "pyparsing"
+version = "2.4.7"
+description = "Python parsing module"
+category = "main"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "requests"
+version = "2.26.0"
+description = "Python HTTP for Humans."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
+
+[package.dependencies]
+certifi = ">=2017.4.17"
+charset-normalizer = {version = ">=2.0.0,<2.1.0", markers = "python_version >= \"3\""}
+idna = {version = ">=2.5,<4", markers = "python_version >= \"3\""}
+urllib3 = ">=1.21.1,<1.27"
+
+[package.extras]
+socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
+use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "resampy"
+version = "0.2.2"
+description = "Efficient signal resampling"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+numba = ">=0.32"
+numpy = ">=1.10"
+scipy = ">=0.13"
+six = ">=1.3"
+
+[package.extras]
+docs = ["sphinx (!=1.3.1)", "numpydoc"]
+tests = ["pytest (<4)", "pytest-cov"]
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "rpi-ws281x"
+version = "4.3.0"
+description = "Userspace Raspberry Pi PWM/PCM/SPI library for SK6812 and WS281X LEDs."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "samplerate"
+version = "0.1.0"
+description = "Python bindings for libsamplerate based on CFFI and NumPy"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+cffi = ">=1.0.0"
+numpy = "*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "scikit-learn"
+version = "0.24.2"
+description = "A set of python modules for machine learning and data mining"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+joblib = ">=0.11"
+numpy = ">=1.13.3"
+scipy = ">=0.19.1"
+threadpoolctl = ">=2.0.0"
+
+[package.extras]
+benchmark = ["matplotlib (>=2.1.1)", "pandas (>=0.25.0)", "memory-profiler (>=0.57.0)"]
+docs = ["matplotlib (>=2.1.1)", "scikit-image (>=0.13)", "pandas (>=0.25.0)", "seaborn (>=0.9.0)", "memory-profiler (>=0.57.0)", "sphinx (>=3.2.0)", "sphinx-gallery (>=0.7.0)", "numpydoc (>=1.0.0)", "Pillow (>=7.1.2)", "sphinx-prompt (>=1.3.0)"]
+examples = ["matplotlib (>=2.1.1)", "scikit-image (>=0.13)", "pandas (>=0.25.0)", "seaborn (>=0.9.0)"]
+tests = ["matplotlib (>=2.1.1)", "scikit-image (>=0.13)", "pandas (>=0.25.0)", "pytest (>=5.0.1)", "pytest-cov (>=2.9.0)", "flake8 (>=3.8.2)", "mypy (>=0.770)", "pyamg (>=4.0.0)"]
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "scipy"
+version = "1.7.1"
+description = "SciPy: Scientific Library for Python"
+category = "main"
+optional = false
+python-versions = ">=3.7,<3.10"
+
+[package.dependencies]
+numpy = ">=1.16.5,<1.23.0"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "six"
+version = "1.16.0"
+description = "Python 2 and 3 compatibility utilities"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "soundfile"
+version = "0.10.3.post1"
+description = "An audio library based on libsndfile, CFFI and NumPy"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+cffi = ">=1.0"
+
+[package.extras]
+numpy = ["numpy"]
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "threadpoolctl"
+version = "2.2.0"
+description = "threadpoolctl"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "urllib3"
+version = "1.26.6"
+description = "HTTP library with thread-safe connection pooling, file post, and more."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
+
+[package.extras]
+brotli = ["brotlipy (>=0.6.0)"]
+secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
+socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
+
+[package.source]
+type = "legacy"
+url = "https://piwheels.org/simple"
+reference = "piwheels"
+
+[metadata]
+lock-version = "1.1"
+python-versions = ">=3.7,<3.8"
+content-hash = "eeaa3994de68200a962f6aa0feaae9decd477ce32078b17548129d31121796a7"
+
+[metadata.files]
+appdirs = [
+    {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
+]
+audioread = [
+    {file = "audioread-2.1.9-py3-none-any.whl", hash = "sha256:aaf29bedb06a5f3ccaa9e8cc469907782e18a0c9add4da832f99fb694610c4b0"},
+]
+certifi = [
+    {file = "certifi-2021.5.30-py2.py3-none-any.whl", hash = "sha256:50b1e4f8446b06f41be7dd6338db18e0990601dce795c2b1686458aa7e8fa7d8"},
+]
+cffi = [
+    {file = "cffi-1.14.6-cp35-cp35m-linux_armv6l.whl", hash = "sha256:1f53e2a841e57da2546cd033668485feaf5dec20ed730e90765e138a3117a8ce"},
+    {file = "cffi-1.14.6-cp35-cp35m-linux_armv7l.whl", hash = "sha256:1f53e2a841e57da2546cd033668485feaf5dec20ed730e90765e138a3117a8ce"},
+    {file = "cffi-1.14.6-cp37-cp37m-linux_armv6l.whl", hash = "sha256:c993e9eefcd5d3b6ff6bf16e85a3c5c331ec8ac47d4b1a942da58aaf46f16519"},
+    {file = "cffi-1.14.6-cp37-cp37m-linux_armv7l.whl", hash = "sha256:c993e9eefcd5d3b6ff6bf16e85a3c5c331ec8ac47d4b1a942da58aaf46f16519"},
+    {file = "cffi-1.14.6-cp39-cp39-linux_armv6l.whl", hash = "sha256:ff33cea1d8d00288900efac48b20257d1efe9df77ede3a3fcc397a343337407d"},
+    {file = "cffi-1.14.6-cp39-cp39-linux_armv7l.whl", hash = "sha256:ff33cea1d8d00288900efac48b20257d1efe9df77ede3a3fcc397a343337407d"},
+]
+charset-normalizer = [
+    {file = "charset_normalizer-2.0.4-py3-none-any.whl", hash = "sha256:762c76ab955f265f68d4683641bb10d7f2723dbc10091505886e357e0b42760f"},
+]
+colorama = [
+    {file = "colorama-0.4.5-py2.py3-none-any.whl", hash = "sha256:2e3098fdcfc0107a135ba8bae5ddb6224bbb7fb7026db2d1b066d5af8bcca063"},
+]
+decorator = [
+    {file = "decorator-5.0.9-py3-none-any.whl", hash = "sha256:6e5c199c16f7a9f0e3a61a4a54b3d27e7dad0dbdde92b944426cb20914376323"},
+]
+easing-functions = [
+    {file = "easing_functions-1.0.4-py3-none-any.whl", hash = "sha256:27f2ce64adecde3d2d90d503ad564fc944e8f20221ba2eacf96be37c28c7ae4b"},
+]
+idna = [
+    {file = "idna-3.2-py3-none-any.whl", hash = "sha256:14475042e284991034cb48e06f6851428fb14c4dc953acd9be9a5e95c7b6dd7a"},
+]
+joblib = [
+    {file = "joblib-1.0.1-py3-none-any.whl", hash = "sha256:feeb1ec69c4d45129954f1b7034954241eedfd6ba39b5e9e4b6883be3332d5e5"},
+]
+librosa = [
+    {file = "librosa-0.8.1-py3-none-any.whl", hash = "sha256:fd381e2d7067d4d4cf7691f2ef3620ef62a8aa6445dcf407e3328254692f742a"},
+]
+llvmlite = [
+    {file = "llvmlite-0.37.0-cp37-cp37m-linux_armv7l.whl", hash = "sha256:94a666d394e0bff8421d46501f871ade534b60290505eb3d29caeb5c08139588"},
+]
+logzero = [
+    {file = "logzero-1.7.0-py2.py3-none-any.whl", hash = "sha256:23eb1f717a2736f9ab91ca0d43160fd2c996ad49ae6bad34652d47aba908769d"},
+]
+numba = [
+    {file = "numba-0.54.0-cp37-cp37m-linux_armv6l.whl", hash = "sha256:2eec732a93c4c59634778c0a0d67566b2c24f1a5d2e755809cd2753000535837"},
+    {file = "numba-0.54.0-cp37-cp37m-linux_armv7l.whl", hash = "sha256:2eec732a93c4c59634778c0a0d67566b2c24f1a5d2e755809cd2753000535837"},
+    {file = "numba-0.54.0-cp39-cp39-linux_armv6l.whl", hash = "sha256:4beae7c6601cd0312e96943b847abc1bda17b517085805b17fc165e7e3a5afa4"},
+    {file = "numba-0.54.0-cp39-cp39-linux_armv7l.whl", hash = "sha256:4beae7c6601cd0312e96943b847abc1bda17b517085805b17fc165e7e3a5afa4"},
+]
+numpy = [
+    {file = "numpy-1.20.3-cp37-cp37m-linux_armv6l.whl", hash = "sha256:d840d80623c96696fab0d15489f49425bec1c0f47f3bf0b3362ce0c75dbad993"},
+    {file = "numpy-1.20.3-cp37-cp37m-linux_armv7l.whl", hash = "sha256:d840d80623c96696fab0d15489f49425bec1c0f47f3bf0b3362ce0c75dbad993"},
+    {file = "numpy-1.20.3-cp39-cp39-linux_armv6l.whl", hash = "sha256:4c020adbaa398721cd5e30c5aab52b505efcd35c3b0156e800245c1274c96962"},
+    {file = "numpy-1.20.3-cp39-cp39-linux_armv7l.whl", hash = "sha256:4c020adbaa398721cd5e30c5aab52b505efcd35c3b0156e800245c1274c96962"},
+]
+packaging = [
+    {file = "packaging-21.0-py3-none-any.whl", hash = "sha256:c86254f9220d55e31cc94d69bade760f0847da8000def4dfe1c6b872fd14ff14"},
+]
+pooch = [
+    {file = "pooch-1.5.1-py3-none-any.whl", hash = "sha256:f9d9c9beed5353f3da39c08883d819fbbfab84e92870a5d34348741729433fe5"},
+]
+pyalsaaudio = [
+    {file = "pyalsaaudio-0.9.0-cp35-cp35m-linux_armv6l.whl", hash = "sha256:6ab157ec0c7c571ed46e4ef40162f7d44c1b0421634b4893525fb7461f01c7bc"},
+    {file = "pyalsaaudio-0.9.0-cp35-cp35m-linux_armv7l.whl", hash = "sha256:6ab157ec0c7c571ed46e4ef40162f7d44c1b0421634b4893525fb7461f01c7bc"},
+    {file = "pyalsaaudio-0.9.0-cp37-cp37m-linux_armv6l.whl", hash = "sha256:d3c662f3a2dc184ffbaea493e6fb430afa86085e52686a4060d3c52a7467efc1"},
+    {file = "pyalsaaudio-0.9.0-cp37-cp37m-linux_armv7l.whl", hash = "sha256:d3c662f3a2dc184ffbaea493e6fb430afa86085e52686a4060d3c52a7467efc1"},
+    {file = "pyalsaaudio-0.9.0-cp39-cp39-linux_armv6l.whl", hash = "sha256:8a0d70c4ee37f2bdb5678eb33c4d55ba2c6c4a8ba454dd820ff7e5ecdb39f42d"},
+    {file = "pyalsaaudio-0.9.0-cp39-cp39-linux_armv7l.whl", hash = "sha256:8a0d70c4ee37f2bdb5678eb33c4d55ba2c6c4a8ba454dd820ff7e5ecdb39f42d"},
+]
+pycparser = [
+    {file = "pycparser-2.20-py2.py3-none-any.whl", hash = "sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705"},
+]
+pyparsing = [
+    {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
+]
+requests = [
+    {file = "requests-2.26.0-py2.py3-none-any.whl", hash = "sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24"},
+]
+resampy = [
+    {file = "resampy-0.2.2-py3-none-any.whl", hash = "sha256:b80b958a06816972e38ebb87ebf8de206c0eacde6f1352586f9073d4a219af9e"},
+]
+rpi-ws281x = [
+    {file = "rpi_ws281x-4.3.0-cp35-cp35m-linux_armv6l.whl", hash = "sha256:bed9ec0b3b602f61c052a6d7ba659e57c264e1112da7921644ec04c675534a30"},
+    {file = "rpi_ws281x-4.3.0-cp35-cp35m-linux_armv7l.whl", hash = "sha256:bed9ec0b3b602f61c052a6d7ba659e57c264e1112da7921644ec04c675534a30"},
+    {file = "rpi_ws281x-4.3.0-cp37-cp37m-linux_armv6l.whl", hash = "sha256:99ed59629964d59f6904e481627896283720a3d3a4819232a8539abdfe0e456d"},
+    {file = "rpi_ws281x-4.3.0-cp37-cp37m-linux_armv7l.whl", hash = "sha256:99ed59629964d59f6904e481627896283720a3d3a4819232a8539abdfe0e456d"},
+    {file = "rpi_ws281x-4.3.0-cp39-cp39-linux_armv6l.whl", hash = "sha256:bb999bf0de56bd0eed81f2e68bb69d436a32eca4bf9059bbaa61f744c27f4024"},
+    {file = "rpi_ws281x-4.3.0-cp39-cp39-linux_armv7l.whl", hash = "sha256:bb999bf0de56bd0eed81f2e68bb69d436a32eca4bf9059bbaa61f744c27f4024"},
+]
+samplerate = [
+    {file = "samplerate-0.1.0-py2.py3-none-any.whl", hash = "sha256:f55e5c9d0a8ba3c82a53b7d9c34a2d145439c61166a7f310efaec88f2781b8f8"},
+]
+scikit-learn = [
+    {file = "scikit_learn-0.24.2-cp37-cp37m-linux_armv6l.whl", hash = "sha256:1018d4b17b1778a82e58ee7de1a9748a9f962c9f04ceee4ec6bd8115cabb4b5a"},
+    {file = "scikit_learn-0.24.2-cp37-cp37m-linux_armv7l.whl", hash = "sha256:1018d4b17b1778a82e58ee7de1a9748a9f962c9f04ceee4ec6bd8115cabb4b5a"},
+    {file = "scikit_learn-0.24.2-cp39-cp39-linux_armv6l.whl", hash = "sha256:555045a8b177c8a4452743c758371a29ab79a35bcd04e40a23544d1a6bb681bb"},
+    {file = "scikit_learn-0.24.2-cp39-cp39-linux_armv7l.whl", hash = "sha256:555045a8b177c8a4452743c758371a29ab79a35bcd04e40a23544d1a6bb681bb"},
+]
+scipy = [
+    {file = "scipy-1.7.1-cp37-cp37m-linux_armv6l.whl", hash = "sha256:f749b4f6bb334d6166aa8452ffa40f231519f257e37a1deddbdd1ba5e3e9419e"},
+    {file = "scipy-1.7.1-cp37-cp37m-linux_armv7l.whl", hash = "sha256:f749b4f6bb334d6166aa8452ffa40f231519f257e37a1deddbdd1ba5e3e9419e"},
+    {file = "scipy-1.7.1-cp39-cp39-linux_armv6l.whl", hash = "sha256:de777332715005438a1c4469451941ec9193f0ac2b5497e625e6b6d30e22b2ae"},
+    {file = "scipy-1.7.1-cp39-cp39-linux_armv7l.whl", hash = "sha256:de777332715005438a1c4469451941ec9193f0ac2b5497e625e6b6d30e22b2ae"},
+]
+six = [
+    {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
+]
+soundfile = [
+    {file = "SoundFile-0.10.3.post1-py2.py3-none-any.whl", hash = "sha256:2d17e0a6fc2af0d6c1d868bafa5ec80aae6e186a97fec8db07ad6af29842fbc7"},
+]
+threadpoolctl = [
+    {file = "threadpoolctl-2.2.0-py3-none-any.whl", hash = "sha256:e5a995e3ffae202758fa8a90082e35783b9370699627ae2733cd1c3a73553616"},
+]
+urllib3 = [
+    {file = "urllib3-1.26.6-py2.py3-none-any.whl", hash = "sha256:39fb8672126159acb139a7718dd10806104dec1e2f0f6c88aab05d17df10c8d4"},
+]
