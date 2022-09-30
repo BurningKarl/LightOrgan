@@ -6,7 +6,7 @@ charset-normalizer==2.0.4
 decorator==5.0.9
 easing-functions==1.0.4
 idna==3.2
-joblib==1.0.1
+joblib==1.2.0
 librosa==0.8.1
 llvmlite==0.37.0
 logzero==1.7.0
