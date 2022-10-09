@@ -13,11 +13,11 @@ reference = "piwheels"
 
 [[package]]
 name = "audioread"
-version = "2.1.9"
+version = "3.0.0"
 description = "multi-library, cross-platform audio decoding"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.6"
 
 [package.source]
 type = "legacy"
@@ -49,7 +49,7 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "certifi"
-version = "2022.6.15"
+version = "2022.9.24"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
 optional = false
@@ -62,7 +62,7 @@ reference = "piwheels"
 
 [[package]]
 name = "cffi"
-version = "1.15.0"
+version = "1.15.1"
 description = "Foreign Function Interface for Python calling C code."
 category = "main"
 optional = false
@@ -78,11 +78,11 @@ reference = "piwheels"
 
 [[package]]
 name = "charset-normalizer"
-version = "2.0.12"
+version = "2.1.1"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 category = "main"
 optional = false
-python-versions = ">=3.5.0"
+python-versions = ">=3.6.0"
 
 [package.extras]
 unicode_backport = ["unicodedata2"]
@@ -137,7 +137,7 @@ reference = "piwheels"
 
 [[package]]
 name = "idna"
-version = "3.3"
+version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
 optional = false
@@ -172,11 +172,11 @@ reference = "piwheels"
 
 [[package]]
 name = "joblib"
-version = "1.1.0"
+version = "1.2.0"
 description = "Lightweight pipelining with Python functions"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.source]
 type = "legacy"
@@ -398,7 +398,7 @@ reference = "piwheels"
 
 [[package]]
 name = "requests"
-version = "2.28.0"
+version = "2.28.1"
 description = "Python HTTP for Humans."
 category = "main"
 optional = false
@@ -406,13 +406,13 @@ python-versions = ">=3.7, <4"
 
 [package.dependencies]
 certifi = ">=2017.4.17"
-charset-normalizer = ">=2.0.0,<2.1.0"
+charset-normalizer = ">=2,<3"
 idna = ">=2.5,<4"
 urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
-use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
+use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
 
 [package.source]
 type = "legacy"
@@ -421,21 +421,20 @@ reference = "piwheels"
 
 [[package]]
 name = "resampy"
-version = "0.2.2"
+version = "0.4.2"
 description = "Efficient signal resampling"
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-numba = ">=0.32"
-numpy = ">=1.10"
-scipy = ">=0.13"
-six = ">=1.3"
+numba = ">=0.53"
+numpy = ">=1.17"
 
 [package.extras]
-docs = ["sphinx (!=1.3.1)", "numpydoc"]
-tests = ["pytest (<4)", "pytest-cov"]
+design = ["optuna (>=2.10.0)"]
+docs = ["numpydoc", "sphinx (!=1.3.1)"]
+tests = ["pytest (<8)", "pytest-cov", "scipy (>=1.0)"]
 
 [package.source]
 type = "legacy"
@@ -497,21 +496,8 @@ url = "https://piwheels.org/simple"
 reference = "piwheels"
 
 [[package]]
-name = "six"
-version = "1.16.0"
-description = "Python 2 and 3 compatibility utilities"
-category = "main"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
-
-[package.source]
-type = "legacy"
-url = "https://piwheels.org/simple"
-reference = "piwheels"
-
-[[package]]
 name = "soundfile"
-version = "0.10.3.post1"
+version = "0.11.0"
 description = "An audio library based on libsndfile, CFFI and NumPy"
 category = "main"
 optional = false
@@ -582,16 +568,16 @@ reference = "piwheels"
 
 [[package]]
 name = "urllib3"
-version = "1.26.9"
+version = "1.26.12"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, <4"
 
 [package.extras]
-secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
+brotli = ["brotlicffi (>=0.8.0)", "brotli (>=1.0.9)", "brotlipy (>=0.6.0)"]
+secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "urllib3-secure-extra", "ipaddress"]
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
-brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)", "brotlipy (>=0.6.0)"]
 
 [package.source]
 type = "legacy"
@@ -625,22 +611,22 @@ appdirs = [
     {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
 ]
 audioread = [
-    {file = "audioread-2.1.9-py3-none-any.whl", hash = "sha256:aaf29bedb06a5f3ccaa9e8cc469907782e18a0c9add4da832f99fb694610c4b0"},
+    {file = "audioread-3.0.0-py3-none-any.whl", hash = "sha256:0bb1173753d2537147274c667b4050c4c279720efab68634d5a28dcc65350a65"},
 ]
 black = []
 certifi = [
-    {file = "certifi-2022.6.15-py3-none-any.whl", hash = "sha256:cbd4c168c00e6c24b3fdf4e9f34c7c459810173b3a3cb9ab14a219f7549d4263"},
+    {file = "certifi-2022.9.24-py3-none-any.whl", hash = "sha256:70fa284520b2a9be47502025d8a755e6bdb06327baaa9097fe59759c236ade4b"},
 ]
 cffi = [
-    {file = "cffi-1.15.0-cp35-cp35m-linux_armv6l.whl", hash = "sha256:9c39a248297b514b4074a3250291298c2daa40993998e36067f5f4b9e82c8e5a"},
-    {file = "cffi-1.15.0-cp35-cp35m-linux_armv7l.whl", hash = "sha256:9c39a248297b514b4074a3250291298c2daa40993998e36067f5f4b9e82c8e5a"},
-    {file = "cffi-1.15.0-cp37-cp37m-linux_armv6l.whl", hash = "sha256:2b4d29d69a6c852eb902b54f0a140f98ef20cb1fde000923e8f9aafd07fa7e70"},
-    {file = "cffi-1.15.0-cp37-cp37m-linux_armv7l.whl", hash = "sha256:2b4d29d69a6c852eb902b54f0a140f98ef20cb1fde000923e8f9aafd07fa7e70"},
-    {file = "cffi-1.15.0-cp39-cp39-linux_armv6l.whl", hash = "sha256:9733677bd97cecb003f62fc919a3bf6af0449e1e20a8cb8578c1fcbb0bd8881d"},
-    {file = "cffi-1.15.0-cp39-cp39-linux_armv7l.whl", hash = "sha256:9733677bd97cecb003f62fc919a3bf6af0449e1e20a8cb8578c1fcbb0bd8881d"},
+    {file = "cffi-1.15.1-cp35-cp35m-linux_armv6l.whl", hash = "sha256:6121721a6976cbf2fc4d2807fded73d92917c911bbc8ba2c7310321d7b760230"},
+    {file = "cffi-1.15.1-cp35-cp35m-linux_armv7l.whl", hash = "sha256:6121721a6976cbf2fc4d2807fded73d92917c911bbc8ba2c7310321d7b760230"},
+    {file = "cffi-1.15.1-cp37-cp37m-linux_armv6l.whl", hash = "sha256:bf9242179d15bac1bf6d9b03d83d058019b3f6bca8c08ad699de315e5fbfa6d3"},
+    {file = "cffi-1.15.1-cp37-cp37m-linux_armv7l.whl", hash = "sha256:bf9242179d15bac1bf6d9b03d83d058019b3f6bca8c08ad699de315e5fbfa6d3"},
+    {file = "cffi-1.15.1-cp39-cp39-linux_armv6l.whl", hash = "sha256:a1e3a74910df7f5e703e5b0009d411171b808e45f4826fac0568fdab1a154185"},
+    {file = "cffi-1.15.1-cp39-cp39-linux_armv7l.whl", hash = "sha256:a1e3a74910df7f5e703e5b0009d411171b808e45f4826fac0568fdab1a154185"},
 ]
 charset-normalizer = [
-    {file = "charset_normalizer-2.0.12-py3-none-any.whl", hash = "sha256:4418fd831327416197e8458fdc804bb74f6945c0f0ee3fdc0cf504db905139a1"},
+    {file = "charset_normalizer-2.1.1-py3-none-any.whl", hash = "sha256:9ff357cacd4163b3a6aa343bc166533cd0cf173323b885b7ea2094a7fa1cec24"},
 ]
 click = [
     {file = "click-8.1.3-py3-none-any.whl", hash = "sha256:0fbcde147794ed8e320fe5cfe2155cf6fcb76c1249ae7292a4c07d25de6825fe"},
@@ -652,13 +638,13 @@ decorator = [
     {file = "decorator-5.1.1-py3-none-any.whl", hash = "sha256:6f519e77644a392d3054e528ba8db527df4246be581d4d43b14f0aacace79cbd"},
 ]
 idna = [
-    {file = "idna-3.3-py3-none-any.whl", hash = "sha256:a8c56282ad8491e5d10c5d44e9e4ce38e37a16bc03ebb54fdcaf9d05b8e0c309"},
+    {file = "idna-3.4-py3-none-any.whl", hash = "sha256:bcac1132a4eadea8321490704e2349b752e29c6ec2f1c27d372010e76ebd3fa1"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-5.0.0-py3-none-any.whl", hash = "sha256:aa723d7bbfda2a91287c72a6e19f286b594a53aa12fe583ec76243460f482289"},
 ]
 joblib = [
-    {file = "joblib-1.1.0-py2.py3-none-any.whl", hash = "sha256:52dd78527f9e977ebebee9853ad98dff046518281da37b54481392b6e74f7799"},
+    {file = "joblib-1.2.0-py3-none-any.whl", hash = "sha256:9b9301f59207230013000f98849be857733dcbde00aff54780d96753980ab7d6"},
 ]
 librosa = [
     {file = "librosa-0.8.1-py3-none-any.whl", hash = "sha256:fd381e2d7067d4d4cf7691f2ef3620ef62a8aa6445dcf407e3328254692f742a"},
@@ -711,10 +697,10 @@ pyparsing = [
     {file = "pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:94fac81ddf92f0bdf3bb33c1c3e6d0181caa204a578184dd02778870ccf307c5"},
 ]
 requests = [
-    {file = "requests-2.28.0-py3-none-any.whl", hash = "sha256:4e9099a313a6f41f1644cb97b98a3b0130081b31395f235f3a59619977626fe4"},
+    {file = "requests-2.28.1-py3-none-any.whl", hash = "sha256:f598c2ccf6521aa5a214a537caf4aa57d359d0a9040a62f9e23f1d973512c0b8"},
 ]
 resampy = [
-    {file = "resampy-0.2.2-py3-none-any.whl", hash = "sha256:b80b958a06816972e38ebb87ebf8de206c0eacde6f1352586f9073d4a219af9e"},
+    {file = "resampy-0.4.2-py3-none-any.whl", hash = "sha256:d2d3ea2bc96e6a497f2e08651bfe19c663e59d268985e0ac3340ffc39138a5d8"},
 ]
 rpi-ws281x = [
     {file = "rpi_ws281x-4.3.4-cp35-cp35m-linux_armv6l.whl", hash = "sha256:439c518548554bddc40323f11509d34ae6cdc5f21516c6d5f770c48d1d5683ec"},
@@ -736,11 +722,8 @@ scipy = [
     {file = "scipy-1.7.3-cp39-cp39-linux_armv6l.whl", hash = "sha256:a128bd9d674bb0565b200b906d20a452dfd2b52cac044b21103f580170525154"},
     {file = "scipy-1.7.3-cp39-cp39-linux_armv7l.whl", hash = "sha256:a128bd9d674bb0565b200b906d20a452dfd2b52cac044b21103f580170525154"},
 ]
-six = [
-    {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
-]
 soundfile = [
-    {file = "SoundFile-0.10.3.post1-py2.py3-none-any.whl", hash = "sha256:2d17e0a6fc2af0d6c1d868bafa5ec80aae6e186a97fec8db07ad6af29842fbc7"},
+    {file = "soundfile-0.11.0-py2.py3-none-any.whl", hash = "sha256:accd507f2a5503705ce0297ca551cfbf077cb8d94b91a1cfd99d03b04221d314"},
 ]
 threadpoolctl = [
     {file = "threadpoolctl-3.1.0-py3-none-any.whl", hash = "sha256:fa64df69de1ad084aa9c115df683849a731553a5652540552f40d99b84a4c492"},
@@ -758,7 +741,7 @@ typing-extensions = [
     {file = "typing_extensions-4.4.0-py3-none-any.whl", hash = "sha256:979fb485ad436c08d30192f00835e928d3029f13146107787caec5a68c4a6725"},
 ]
 urllib3 = [
-    {file = "urllib3-1.26.9-py2.py3-none-any.whl", hash = "sha256:8d20a39e9b43639fe667928235fc341f7873ab563be57c7666e7174bf26224f6"},
+    {file = "urllib3-1.26.12-py2.py3-none-any.whl", hash = "sha256:45b4bf2512fa6778e7c89c307a03af193251de4b6ad6ac2705fed3fb19b2ade1"},
 ]
 zipp = [
     {file = "zipp-3.9.0-py3-none-any.whl", hash = "sha256:c9b8d72161333a672814e86d7f11b6034fb52c048263b1e81ce7c212a1592c69"},
