@@ -29,12 +29,13 @@ class Visualizer(abc.ABC):
     LED_PIN = 21  # see README
     REPORT_INTERVAL = 50  # Print report every ... updates
 
-    def __init__(self, *, led_count):
+    def __init__(self, *, led_count, led_offset=0):
         super().__init__()
         self.led_count = led_count
+        self.led_offset = led_offset
 
         # Create NeoPixel object with appropriate configuration.
-        self.strip = rpi_ws281x.PixelStrip(num=led_count, pin=self.LED_PIN)
+        self.strip = rpi_ws281x.PixelStrip(num=led_offset + led_count, pin=self.LED_PIN)
 
         # Intialize the library (must be called once before other functions).
         self.strip.begin()

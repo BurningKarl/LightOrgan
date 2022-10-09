@@ -19,6 +19,7 @@ def main():
 
     visualizer = FrequencyVisualizer(
         led_count=config["led_count"],
+        led_offset=config["led_offset"],
         sample_rate=config["sample_rate"],
         buffer_size=config["buffer_size"],
         chunk_size=config["chunk_size"],

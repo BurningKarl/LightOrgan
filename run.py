@@ -23,6 +23,13 @@ def parse_options():
         help="number of LEDs used (default: 9)",
     )
     parser.add_argument(
+        "--led-offset",
+        metavar="OFFSET",
+        type=int,
+        default=0,
+        help="number of LEDs to skip at the start of the strip",
+    )
+    parser.add_argument(
         "--update-freq",
         metavar="FREQ",
         type=float,

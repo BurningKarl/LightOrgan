@@ -33,5 +33,5 @@ class BrightnessVisualizer(Visualizer):
             rpi_ws281x.Color(round(red * 255), round(green * 255), round(blue * 255))
             for (red, green, blue) in colors
         ]
-        for i, bit_color in enumerate(bit_colors):
+        for i, bit_color in enumerate(bit_colors, start=self.led_offset):
             self.strip.setPixelColor(i, bit_color)
