@@ -146,12 +146,12 @@ class IirtVisualizer(BufferedAudioVisualizer):
     @staticmethod
     def _compute_filter_power_ba(signal, cur_filter):
         cur_filter_output = scipy.signal.filtfilt(cur_filter[0], cur_filter[1], signal)
-        return np.mean(cur_filter_output ** 2)
+        return np.mean(cur_filter_output**2)
 
     @staticmethod
     def _compute_filter_power_sos(signal, cur_filter):
         cur_filter_output = scipy.signal.sosfiltfilt(cur_filter, signal)
-        return np.mean(cur_filter_output ** 2)
+        return np.mean(cur_filter_output**2)
 
     def process_audio_chunk(self, chunk, pool):
         if np.all(self.buffer == 0) and np.all(chunk == 0):

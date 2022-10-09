@@ -68,21 +68,18 @@ class FrequencyVisualizer(StftVisualizer, BrightnessVisualizer):
         x_remainder = x_new - xs[indices]
         return (
             cumulative[indices]
-            + (slopes[indices] / 2) * x_remainder ** 2
+            + (slopes[indices] / 2) * x_remainder**2
             + ys[indices] * x_remainder
         )
 
     def set_led_colors(self, normalized_amplitudes):
-        average_amplitudes = (
-            np.diff(
-                self.interpolate_integral(
-                    x_new=self.boundaries,
-                    xs=self.frequencies,
-                    ys=normalized_amplitudes,
-                )
+        average_amplitudes = np.diff(
+            self.interpolate_integral(
+                x_new=self.boundaries,
+                xs=self.frequencies,
+                ys=normalized_amplitudes,
             )
-            / np.diff(self.boundaries)
-        )
+        ) / np.diff(self.boundaries)
         self.set_led_brightness_values(average_amplitudes)
 
 
