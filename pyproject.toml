@@ -9,8 +9,11 @@ readme = "README.md"
 [[tool.poetry.source]]
 name = "piwheels"
 url = "https://piwheels.org/simple/"
-default = false
-secondary = false
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "supplemental"
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.8"
