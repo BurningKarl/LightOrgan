@@ -4,33 +4,26 @@ A light organ using a WS2812B LED strip on a Raspberry Pi
 The light organ is able to react to all sounds played as the user pi. If the Raspberry Pi is set up as a Spotify playback device or a Bluetooth speaker (as explained below), you can easily control the music remotely.
 
 ## Hardware requirements
-1. A Raspberry Pi with Raspbian 10 (buster)
+1. A Raspberry Pi with Raspberry Pi OS based on Debian Linux 12 (bookworm)
 1. A WS2812B LED strip or similar
 
 ## Guide
-1. Clone the repo and install the python libraries in `requirements.txt`
+1. Clone the repo and install the necessary python libraries
 1. Correctly set up the WS2812B LED strip
 1. Play some music as the user pi
 1. Enjoy your light organ by executing the correct command
 
 ### Step 1: Repo and Python setup
-This project uses [Poetry](https://python-poetry.org/) for dependency management, so it needs to be installed first, by following the steps at https://python-poetry.org/docs/#installation.
-Executing `poetry` in the shell should show information on its usage.
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management, so it needs to be installed first, by following the steps at https://docs.astral.sh/uv/getting-started/installation/.
+Executing `uv` in the shell should show information on its usage.
 
 Afterwards, clone the repository, set up a python virtual environment and install all the necessary packages with the following commands:
 ```bash
 git clone https://github.com/BurningKarl/LightOrgan.git
 cd LightOrgan
 sudo apt install libatlas-base-dev
-poetry shell
-poetry install
+uv sync
 ```
-
-The `poetry shell` command creates and activates a virtual environment in which we will install the required Python libraries.
-The environment can be deactivated by `exit` and reactivated by executing `poetry shell` inside the `LightOrgan` folder.
-
-This repository comes with a self-compiled wheel for `llvmlite`, as it is currently not available at https://piwheels.org/ but needed for audio analysis with `librosa`.
-For reference, the guide to building llvmlite manually can be found at https://llvmlite.readthedocs.io/en/latest/admin-guide/install.html#building-manually.
 
 ### Step 2: WS2812 setup
 I used https://github.com/jgarff/rpi_ws281x/blob/master/README.md to help me to set up my WS2812B LED strip. 
@@ -47,7 +40,7 @@ This also has the advantage that it is very easy to set up:
 
 A useful map of all the pins on the Raspberry Pi can be found at https://pinout.xyz/#.
 Once you connected all the wires, the LEDs will not automatically turn on. 
-You can test everything with `sudo .venv/bin/python scripts/strandtest.py -c` and the first six LEDs will start to light up in various colors and patterns.
+You can test everything with `sudo .venv/bin/python scripts/strandtest.py -c` and the first nine LEDs will start to light up in various colors and patterns.
 The reason I have set `LED_COUNT = 9` is that there is a limit to the number LEDs that you can use simultaneously with the Raspberry Pi as the only power source.
 A single LED can use up to 60 mA of current, and it depends on the type of Raspberry Pi what currents it allows.
 According to [this sheet](https://www.raspberrypi.org/documentation/hardware/raspberrypi/power/README.md) my Raspberry Pi 3B
@@ -64,7 +57,7 @@ This should play back the recorded audio. If there is only silence, you need to 
 ### Step 4: Enjoy!
 To use the light organ, run
 ```bash
-python run.py
+uv run run.py
 ```
 
 It starts capturing audio and visualizing it depending on the selected visualizer in `visualize.py`.
@@ -90,7 +83,7 @@ To test whether the sound output of the Spotify Device can be captured by ALSA u
 
 ### Bluetooth
 If you have a spare Bluetooth dongle, you can turn your Raspberry Pi into a Bluetooth speaker.
-I roughly followed the guide at https://github.com/jobpassion/raspberryPi/blob/master/BluetoothSpeaker.md but found that many steps were unnecessary, at least using the full installation of Raspbian.
+I roughly followed the guide at https://github.com/jobpassion/raspberryPi/blob/master/BluetoothSpeaker.md but found that many steps were unnecessary, at least using the full installation of Raspberry Pi OS.
 
 First use `sudo nano /etc/bluetooth/main.conf` to edit the Bluetooth configuration.
 Here, we need to uncomment the line `#Class = 0x000100` and change it to `Class = 0x00041C`.
