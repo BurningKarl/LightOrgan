@@ -82,7 +82,7 @@ After a successful setup, the Spotify device "raspotify (...)" should appear.
 To test whether the sound output of the Spotify Device can be captured by ALSA use `arecord` and `aplay` as explained above.
 
 ### Bluetooth
-If you have a spare Bluetooth dongle, you can turn your Raspberry Pi into a Bluetooth speaker.
+You can turn your Raspberry Pi into a Bluetooth speaker.
 I roughly followed the guide at https://github.com/jobpassion/raspberryPi/blob/master/BluetoothSpeaker.md but found that many steps were unnecessary, at least using the full installation of Raspberry Pi OS.
 
 First use `sudo nano /etc/bluetooth/main.conf` to edit the Bluetooth configuration.
@@ -90,19 +90,17 @@ Here, we need to uncomment the line `#Class = 0x000100` and change it to `Class 
 This is necessary so that the Raspberry Pi advertises itself as a device that can play audio.
 Afterwards we need `sudo systemctl restart bluetooth.service` so that these changes are applied.
 
-Because the PulseAudio settings are very sensible and already include the `module-bluetooth-discover` and `module-bluetooth-policy` modules, we only need to connect the external device (e.g. a smartphone) to the Raspberry Pi.
-
-Execute `bluetoothctl` to gain access to the Bluetooth console.
-Use `power on` and `discoverable on` to make the Raspberry Pi discoverable and connect to it using your other device.
-While the pairing should work without issues the connection will be dropped shortly after.
-This is because the Raspberry Pi does not yet trust the other device.
-During the pairing process a line of the form
+Execute `bluetoothctl` to gain access to the Bluetooth console and then
+```bluetoothctl
+power on
+discoverable on
+agent KeyboardOnly
+default-agent
 ```
-[NEW] Device <MAC address> <device name>
-```
-should come up on the `bluetoothctl` console.
-You now have the MAC address of your device and can confirm using `info <MAC>` (where `<MAC>` is the MAC address) that this device is already paired but neither trusted nor connected.
-Copy the MAC address and execute `trust <MAC>` followed by `connect <MAC>` to trust your device and connect to it.
+to make the Raspberry Pi discoverable.
+Next, connect to it using your other device.
+The pairing should work without issues after confirming with "yes" on the bluetoothctl console and on the second device.
+Potentially, you need to accept a request to authorize a service with a long ID on the console as well.
 
 Now your second device will redirect all audio to the Raspberry Pi where the light organ script can pick it up.
 
