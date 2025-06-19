@@ -110,6 +110,7 @@ It is often useful to keep the program running in the background and take back c
 To make this easier, I packaged it into a `systemd` user service.
 
 ```bash
+mkdir --parents ~/.config/systemd/user/
 cp lightorgan.service ~/.config/systemd/user/ 
 systemctl --user daemon-reload
 systemctl --user edit --full lightorgan.service
