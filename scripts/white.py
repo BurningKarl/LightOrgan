@@ -1,7 +1,7 @@
-from rpi_ws281x import PixelStrip, Color
+from rpi_ws281x import PixelStrip, Color, SK6812_STRIP_RGBW
 import time
 
-LED_COUNT = 2
+LED_COUNT = 150
 LED_PIN = 21
 # LED_PIN = 10  # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
 LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
@@ -27,12 +27,13 @@ if __name__ == "__main__":
         LED_INVERT,
         LED_BRIGHTNESS,
         LED_CHANNEL,
+        SK6812_STRIP_RGBW,
     )
     # Intialize the library (must be called once before other functions).
     strip.begin()
 
     try:
-        change_color(strip, Color(255, 255, 255))
+        change_color(strip, Color(0, 0, 0, 255))
         while True:
             time.sleep(2)
             print(strip.numPixels())

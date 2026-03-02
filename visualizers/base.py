@@ -35,7 +35,11 @@ class Visualizer(abc.ABC):
         self.led_offset = led_offset
 
         # Create NeoPixel object with appropriate configuration.
-        self.strip = rpi_ws281x.PixelStrip(num=led_offset + led_count, pin=self.LED_PIN)
+        self.strip = rpi_ws281x.PixelStrip(
+            num=led_offset + led_count,
+            pin=self.LED_PIN,
+            strip_type=rpi_ws281x.SK6812_STRIP_GRBW,
+        )
 
         # Intialize the library (must be called once before other functions).
         self.strip.begin()

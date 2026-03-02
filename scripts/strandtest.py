@@ -6,7 +6,7 @@
 # various animations on a strip of NeoPixels.
 
 import time
-from rpi_ws281x import PixelStrip, Color
+from rpi_ws281x import PixelStrip, Color, SK6812_STRIP_GRBW
 import argparse
 
 # LED strip configuration:
@@ -101,6 +101,7 @@ if __name__ == "__main__":
         LED_INVERT,
         LED_BRIGHTNESS,
         LED_CHANNEL,
+        SK6812_STRIP_GRBW,
     )
     # Intialize the library (must be called once before other functions).
     strip.begin()
