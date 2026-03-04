@@ -16,6 +16,7 @@ def open_capture_device(sample_rate, chunk_size):
         channels=1,
         rate=sample_rate,
         periodsize=chunk_size,
+        device="pulse",
     )
 
 
