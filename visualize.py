@@ -23,7 +23,7 @@ def main():
         sample_rate=config["sample_rate"],
         buffer_size=config["buffer_size"],
         chunk_size=config["chunk_size"],
-        rgb_color_factory=ColorFactory.RAINBOW,
+        rgb_color_factory=ColorFactory.RAINBOW_OCTAVES,
     )
 
     ## visualizer = FrequencyBandsVisualizer(

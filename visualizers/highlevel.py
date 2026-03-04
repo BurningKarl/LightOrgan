@@ -1,4 +1,5 @@
 from logzero import logger
+import librosa
 import numpy as np
 import scipy.integrate
 
@@ -23,8 +24,8 @@ class FrequencyVisualizer(StftVisualizer, BrightnessVisualizer):
     def __init__(
         self,
         *,
-        min_frequency=250,  # ~ B3
-        max_frequency=4000,  # ~ B7
+        min_frequency=librosa.note_to_hz("G1"),
+        max_frequency=librosa.note_to_hz("G7"),
         logarithmic_spacing=True,
         **kwargs,
     ):
