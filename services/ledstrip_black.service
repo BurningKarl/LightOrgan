@@ -1,0 +1,11 @@
+[Unit]
+Description=LED strip - white
+Conflicts=lightorgan.service
+Conflicts=ledstrip_black.service
+Conflicts=ledstrip_partylights.service
+
+[Service]
+Environment="PROJECT_ROOT=/home/pi/Documents/LightOrgan"
+ExecStart=/bin/bash -c 'sudo ${PROJECT_ROOT}/.venv/bin/python ${PROJECT_ROOT}/scripts/white.py'
+KillMode=process
+KillSignal=SIGINT

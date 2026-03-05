@@ -53,5 +53,4 @@ if __name__ == "__main__":
                 change_color(strip, hsv_to_color(h=hue, s=1, v=BRIGHTNESS))
                 time.sleep((CYCLE_LENGTH / 2) / NUM_STEPS)
     except KeyboardInterrupt:
-        pass
-        # change_color(strip, Color(0, 0, 0))
+        change_color(strip, Color(0, 0, 0))

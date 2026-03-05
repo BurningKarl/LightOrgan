@@ -113,7 +113,7 @@ def main():
     visualize_process_pid = str(message["pid"])
 
     capture_audio_process = subprocess.Popen(
-        [python, "-u", here / "scripts" / "capture_audio.py"],
+        [python, "-u", here / "capture_audio.py"],
         env=environment_variables,
         stdout=visualize_process.stdin,
     )

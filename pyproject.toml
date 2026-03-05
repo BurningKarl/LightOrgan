@@ -9,6 +9,8 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "gpiozero>=2.0.1",
+    "lgpio>=0.2.2.0",
     "librosa>=0.11.0",
     "logzero>=1.7.0",
     "numpy>=2.2.6",

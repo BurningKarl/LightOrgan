@@ -1,0 +1,11 @@
+[Unit]
+Description=LED strip - party lights
+Conflicts=lightorgan.service
+Conflicts=ledstrip_white.service
+Conflicts=ledstrip_black.service
+
+[Service]
+Environment="PROJECT_ROOT=/home/pi/Documents/LightOrgan"
+ExecStart=/bin/bash -c 'sudo ${PROJECT_ROOT}/.venv/bin/python ${PROJECT_ROOT}/scripts/party_lights.py'
+KillMode=process
+KillSignal=SIGINT
